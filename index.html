@@ -11,30 +11,21 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #E30613; border-radius: 10px; }
         body { font-family: 'Inter', sans-serif; overflow: hidden; background: #FFFFFF; }
         
-        /* Animação suave de entrada (vinda de baixo) */
         .slide-up-active {
             animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .unit-jump-glow { animation: glow 1.5s ease-out; }
         @keyframes glow { 0% { background-color: rgba(227, 6, 19, 0.2); } 100% { background-color: transparent; } }
         
-        /* Ajuste para modo Fullscreen */
         :fullscreen body { background-color: #F8FAFC; }
         :-webkit-full-screen body { background-color: #F8FAFC; }
 
-        /* Estilo para Lightbox (Tela Cheia) */
         #lightbox-modal {
             display: none;
             position: fixed;
@@ -47,14 +38,19 @@
             cursor: zoom-out;
         }
 
-        /* --- ESTILOS PARA O MODO COMPARAÇÃO --- */
+        /* --- MODO COMPARAÇÃO --- */
         .comparison-active aside, 
         .comparison-active header, 
         .comparison-active footer,
         .comparison-active #current-unit-label,
-        .comparison-active #notes-container,
         .comparison-active .nav-controls-container {
             display: none !important;
+        }
+
+        .comparison-active #notes-container {
+            display: flex !important;
+            justify-content: center;
+            width: 100%;
         }
 
         .comparison-active #main-display { padding: 10px !important; }
@@ -63,8 +59,11 @@
         
         .comparison-active #cycles-grid {
             gap: 10px !important;
-            height: calc(100vh - 60px) !important;
+            height: calc(100vh - 80px) !important;
         }
+
+        /* Estilo para slot que falhou (fica invisível mas ocupa o espaço) */
+        .slot-hidden { opacity: 0 !important; pointer-events: none !important; }
     </style>
 </head>
 <body class="bg-[#F8FAFC] text-slate-900 h-screen flex flex-col">
@@ -80,24 +79,18 @@
             </div>
             <h1 class="text-[9px] sm:text-xs font-black uppercase tracking-widest text-white leading-none">CB DISTRIBUIDORA DE BEBIDAS</h1>
         </div>
-
-        <div id="unit-selector" class="hidden md:flex bg-black/10 p-1 rounded-lg gap-0.5 font-black text-[9px] tracking-tighter uppercase text-white">
-            </div>
-
+        <div id="unit-selector" class="hidden md:flex bg-black/10 p-1 rounded-lg gap-0.5 font-black text-[9px] tracking-tighter uppercase text-white"></div>
         <div class="flex items-center gap-4">
             <button id="btn-comparison" onclick="toggleComparison()" class="hidden flex items-center gap-2 bg-white/20 hover:bg-white text-white hover:text-[#E30613] px-3 py-1 rounded-md transition-all text-[10px] font-black uppercase">
                 <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
                 Comparar Ciclos
             </button>
-
             <button onclick="toggleFullscreen()" class="p-1.5 hover:bg-white/10 rounded-md transition-all text-white/70 hover:text-white" title="Tela Cheia (F11)">
                 <i data-lucide="maximize" class="w-4 h-4 text-white"></i>
             </button>
-            
             <div class="relative w-48 text-white">
                 <i data-lucide="search" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/40"></i>
-                <input type="text" id="search-input" placeholder="Pesquisar veículo" 
-                    class="w-full pl-8 pr-2 py-1 bg-white/10 border border-white/10 rounded-md text-[10px] text-white placeholder:text-white/30 focus:outline-none focus:bg-white/20 transition-all shadow-inner">
+                <input type="text" id="search-input" placeholder="Pesquisar veículo" class="w-full pl-8 pr-2 py-1 bg-white/10 border border-white/10 rounded-md text-[10px] text-white placeholder:text-white/30 focus:outline-none focus:bg-white/20 transition-all shadow-inner">
             </div>
         </div>
     </header>
@@ -108,14 +101,11 @@
                 <span class="text-[8px] font-black text-slate-400 uppercase leading-none tracking-tighter">LISTA VEÍCULOS</span>
                 <div id="total-counter" class="text-[10px] font-black text-[#E30613] mt-1 italic">-- veículos</div>
             </div>
-            <div id="truck-list" class="flex-1 overflow-y-auto custom-scrollbar p-1.5 space-y-1 bg-slate-50/30">
-                </div>
+            <div id="truck-list" class="flex-1 overflow-y-auto custom-scrollbar p-1.5 space-y-1 bg-slate-50/30"></div>
         </aside>
 
         <section id="main-display" class="flex-1 flex flex-col p-4 bg-white overflow-hidden relative">
-            
             <div id="animated-content" class="flex-1 flex flex-col slide-up-active overflow-hidden">
-                
                 <div class="header-info-wrapper flex justify-between items-center mb-3 border-b pb-3 border-slate-100 relative z-10 shrink-0">
                     <div class="flex flex-col">
                         <div class="flex items-center gap-2 text-[#E30613] font-black text-[8px] tracking-[0.3em] mb-1 italic leading-none">
@@ -132,7 +122,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="nav-controls-container flex items-center gap-4 bg-slate-50 p-1.5 rounded-xl border border-slate-200 shadow-sm">
                         <div class="flex flex-col items-end pr-3 border-r border-slate-200 text-right">
                             <span class="text-[7px] font-black text-slate-300 uppercase block tracking-tighter leading-none mb-0.5">Veículo</span>
@@ -144,11 +133,9 @@
                         </div>
                     </div>
                 </div>
-
-                <div id="cycles-grid" class="flex-1 grid grid-cols-3 gap-3 overflow-hidden min-h-0">
-                    </div>
-
-            </div> <footer class="mt-2 h-5 shrink-0 flex justify-between items-center border-t border-slate-100 pt-1">
+                <div id="cycles-grid" class="flex-1 grid grid-cols-3 gap-3 overflow-hidden min-h-0"></div>
+            </div> 
+            <footer class="mt-2 h-5 shrink-0 flex justify-between items-center border-t border-slate-100 pt-1">
                 <div id="pagination-dots" class="flex gap-1"></div>
                 <span class="text-[8px] font-black text-slate-300 uppercase tracking-[0.4em] italic leading-none">Costa Brasil Distribuidora de Bebidas</span>
             </footer>
@@ -156,20 +143,14 @@
     </main>
 
     <script>
-        // --- MAPEAMENTO DE PASTAS PARA BUSCA AUTOMÁTICA ---
         const FOLDER_MAP = {
             cycles: ["primeiro_ciclo", "segundo_ciclo", "terceiro_ciclo"],
             units: {
-                "CB NORTE": "norte",
-                "CB SUL": "sul",
-                "BARREIRAS": "barreiras",
-                "JUAZEIRO": "juazeiro",
-                "OT": "ot",
-                "OBSERVAÇÕES": "norte"
+                "CB NORTE": "norte", "CB SUL": "sul", "BARREIRAS": "barreiras",
+                "JUAZEIRO": "juazeiro", "OT": "ot", "OBSERVAÇÕES": "norte"
             }
         };
 
-        // --- BASE DE DADOS COMPLETA E ATUALIZADA ---
         const fleetData = {
             "CB NORTE": [
                 { id: "155", active: [true, false, false], months: ["JUNHO", "AGOSTO", "NOVEMBRO"], transfer: "TRANSFERIDO PARA CB SUL EM JUNHO", notes: "IMAGENS TIRADAS NA CB SUL EM JUNHO"},
@@ -201,12 +182,12 @@
                 { id: "295", active: [true, true, true], months: ["JUNHO", "SETEMBRO", "DEZEMBRO"] },
                 { id: "296", active: [true, true, true], months: ["JUNHO", "SETEMBRO", "DEZEMBRO"] },
                 { id: "297", active: [true, true, true], months: ["JUNHO", "SETEMBRO", "OUTUBRO"] },
-                { id: "319", active: [false, false, true], months: [null, null, "DEZEMBRO"], transfer: "VEÍCULO NOVO", notes: "DATA DE CHEGADA: "},
-                { id: "320", active: [false, false, true], months: [null, null, "DEZEMBRO"], transfer: "VEÍCULO NOVO", notes: "DATA DE CHEGADA: "},
-                { id: "321", active: [false, false, true], months: [null, null, "DEZEMBRO"], transfer: "VEÍCULO NOVO", notes: "DATA DE CHEGADA: "},
-                { id: "322", active: [false, false, true], months: [null, null, "DEZEMBRO"], transfer: "VEÍCULO NOVO", notes: "DATA DE CHEGADA: "},
-                { id: "323", active: [false, false, true], months: [null, null, "DEZEMBRO"], transfer: "VEÍCULO NOVO", notes: "DATA DE CHEGADA: "},
-                { id: "324", active: [false, false, true], months: [null, null, "DEZEMBRO"], transfer: "VEÍCULO NOVO", notes: "DATA DE CHEGADA: "}
+                { id: "319", active: [false, false, true], months: [null, null, "DEZEMBRO"], transfer: "VEÍCULO NOVO"},
+                { id: "320", active: [false, false, true], months: [null, null, "DEZEMBRO"], transfer: "VEÍCULO NOVO"},
+                { id: "321", active: [false, false, true], months: [null, null, "DEZEMBRO"], transfer: "VEÍCULO NOVO"},
+                { id: "322", active: [false, false, true], months: [null, null, "DEZEMBRO"], transfer: "VEÍCULO NOVO"},
+                { id: "323", active: [false, false, true], months: [null, null, "DEZEMBRO"], transfer: "VEÍCULO NOVO"},
+                { id: "324", active: [false, false, true], months: [null, null, "DEZEMBRO"], transfer: "VEÍCULO NOVO"}
             ],
             "CB SUL": [
                 { id: "113", active: [true, true, true], months: ["MAIO", "AGOSTO", "DEZEMBRO"] },
@@ -261,9 +242,7 @@
                 { id: "263", active: [true, true, true], months: ["JUNHO", "SETEMBRO", "OUTUBRO"] },
                 { id: "264", active: [true, true, true], months: ["JUNHO", "SETEMBRO", "OUTUBRO"] },
                 { id: "266", active: [true, true, true], months: ["MAIO", "SETEMBRO", "DEZEMBRO"] },
-                { id: "269", active: [true, false, false], months: ["MAIO", "AGOSTO", "NOVEMBRO"], transfer: "TRANSFERIDO PARA A CB SUL EM JUNHO", notes:"IMAGENS TIRADAS EM JUNHO NA CB SUL"
-
-                 },
+                { id: "269", active: [true, false, false], months: ["MAIO", "AGOSTO", "NOVEMBRO"], transfer: "TRANSFERIDO PARA A CB SUL EM JUNHO", notes:"IMAGENS TIRADAS EM JUNHO NA CB SUL"},
                 { id: "281", active: [true, true, true], months: ["MAIO", "SETEMBRO", "DEZEMBRO"] }
             ],
             "JUAZEIRO": [
@@ -345,25 +324,36 @@
             { label: "3º CICLO", range: "Outubro - Dezembro" }
         ];
 
-        let activeUnit = "CB NORTE"; 
-        let currentIndex = 0;
-        let searchTerm = "";
+        let activeUnit = "CB NORTE"; let currentIndex = 0; let searchTerm = "";
 
-        // FUNÇÃO PARA ESCONDER SLOT CASO IMAGEM NÃO EXISTA
+        // Função de erro: Esconde o slot completamente
         function handleImgError(img) {
             const container = img.closest('.image-slot');
-            if (container) container.style.display = 'none';
+            if (container) container.classList.add('slot-hidden');
         }
 
-        // FUNÇÃO ZOOM
+        function preloadNextVehicle(list, index) {
+            const nextIndex = index + 1;
+            if (nextIndex < list.length) {
+                const nextTruck = list[nextIndex];
+                const unitFolder = FOLDER_MAP.units[activeUnit];
+                [0, 1, 2].forEach(c => {
+                    if (nextTruck.active[c]) {
+                        for (let s = 1; s <= 4; s++) {
+                            const img = new Image();
+                            img.src = `${FOLDER_MAP.cycles[c]}/${unitFolder}/${nextTruck.id}/slot${s}.jpg`;
+                        }
+                    }
+                });
+            }
+        }
+
         function openZoom(src) {
             document.getElementById('lightbox-img').src = src;
             document.getElementById('lightbox-modal').style.display = 'flex';
         }
 
-        /* --- LÓGICA DO MODO COMPARAÇÃO --- */
         let isComparisonMode = false;
-
         function toggleComparison() {
             isComparisonMode = !isComparisonMode;
             const btn = document.getElementById('btn-comparison');
@@ -377,38 +367,27 @@
             lucide.createIcons();
         }
 
-        // Monitorar Tela Cheia para mostrar/esconder o botão
         document.addEventListener('fullscreenchange', () => {
             const btn = document.getElementById('btn-comparison');
-            if (document.fullscreenElement) {
-                btn.classList.remove('hidden');
-            } else {
-                btn.classList.add('hidden');
-                if (isComparisonMode) toggleComparison(); 
-            }
+            if (document.fullscreenElement) btn.classList.remove('hidden');
+            else { btn.classList.add('hidden'); if (isComparisonMode) toggleComparison(); }
         });
 
-        // --- LÓGICA DE RENDERIZAÇÃO ---
         function render(isUnitJump = false) {
-            const list = fleetData[activeUnit]
-                .filter(t => t.id.includes(searchTerm))
-                .sort((a, b) => parseInt(a.id) - parseInt(b.id));
-            
+            const list = fleetData[activeUnit].filter(t => t.id.includes(searchTerm)).sort((a, b) => parseInt(a.id) - parseInt(b.id));
             const truck = list[currentIndex] || { id: "---", months: [null, null, null], active: [false, false, false] };
             
             const animatedContent = document.getElementById('animated-content');
             animatedContent.classList.remove('slide-up-active');
-            void animatedContent.offsetWidth; 
-            animatedContent.classList.add('slide-up-active');
+            void animatedContent.offsetWidth; animatedContent.classList.add('slide-up-active');
 
-            const display = document.getElementById('main-display');
             if (isUnitJump) {
+                const display = document.getElementById('main-display');
                 display.classList.add('unit-jump-glow');
                 setTimeout(() => display.classList.remove('unit-jump-glow'), 1500);
             }
 
-            const unitSelector = document.getElementById('unit-selector');
-            unitSelector.innerHTML = Object.keys(fleetData).map(name => `
+            document.getElementById('unit-selector').innerHTML = Object.keys(fleetData).map(name => `
                 <button onclick="changeUnit('${name}')" class="px-3 py-1.5 rounded-md transition-all ${activeUnit === name ? 'bg-white text-[#E30613] shadow-md scale-105' : 'text-white/60 hover:text-white'}">
                     ${name}
                 </button>
@@ -423,10 +402,8 @@
                 </button>
             `).join('');
 
-            const activeTruckButton = truckList.querySelector('.bg-\\[\\#E30613\\]');
-            if (activeTruckButton) {
-                activeTruckButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
+            const activeBtn = truckList.querySelector('.bg-\\[\\#E30613\\]');
+            if (activeBtn) activeBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
             document.getElementById('current-id').innerText = truck.id;
             document.getElementById('current-unit-label').innerText = activeUnit;
@@ -434,13 +411,12 @@
             
             const notesContainer = document.getElementById('notes-container');
             notesContainer.innerHTML = '';
-            if(truck.transfer) notesContainer.innerHTML += `<div class="bg-red-600 text-white px-4 py-0.5 rounded shadow-sm text-[10px] font-black uppercase flex items-center gap-1 animate-fade"><i data-lucide="arrow-right-left" class="w-2.5 h-2.5 text-white"></i> ${truck.transfer}</div>`;
+            if(truck.transfer) notesContainer.innerHTML += `<div class="bg-red-600 text-white px-4 py-0.5 rounded shadow-sm text-[10px] font-black uppercase flex items-center gap-1"><i data-lucide="arrow-right-left" class="w-2.5 h-2.5"></i> ${truck.transfer}</div>`;
             if(truck.notes) notesContainer.innerHTML += `<div class="bg-slate-900 text-white px-4 py-0.5 rounded text-[10px] font-black uppercase flex items-center gap-1 shadow-sm"><i data-lucide="wrench" class="w-2.5 h-2.5 text-[#E30613]"></i> ${truck.notes}</div>`;
 
             const grid = document.getElementById('cycles-grid');
             grid.innerHTML = [0, 1, 2].map(i => {
                 const isActive = truck.active[i];
-                const month = truck.months[i];
                 const cycleFolder = FOLDER_MAP.cycles[i];
                 const unitFolder = FOLDER_MAP.units[activeUnit];
 
@@ -457,94 +433,59 @@
                                 </div>
                                 ${isActive ? '<i data-lucide="check-circle-2" class="w-3 h-3 text-green-500"></i>' : ''}
                             </div>
-                            ${isActive && month ? `
+                            ${isActive && truck.months[i] ? `
                                 <div class="mt-0.5 bg-slate-900 text-white text-[8px] font-black py-0.5 px-2 rounded shadow flex items-center justify-center gap-1.5 uppercase tracking-widest leading-none">
-                                    <i data-lucide="calendar" class="w-2.5 h-2.5 text-[#E30613]"></i> ${month}
+                                    <i data-lucide="calendar" class="w-2.5 h-2.5 text-[#E30613]"></i> ${truck.months[i]}
                                 </div>
-                            ` : (isActive ? '<div class="mt-0.5 bg-slate-100 text-slate-400 text-[7px] font-black py-0.5 px-2 rounded text-center italic tracking-widest leading-none">Aguardando Validação</div>' : '')}
+                            ` : (isActive ? '<div class="mt-0.5 bg-slate-100 text-slate-400 text-[7px] font-black py-0.5 px-2 rounded text-center italic tracking-widest leading-none">Validação Pendente</div>' : '')}
                         </div>
-                        
                         <div class="flex-1 p-2 grid grid-cols-2 grid-rows-2 gap-2 bg-slate-50/20 overflow-hidden min-h-0">
                             ${[1, 2, 3, 4].map(s => {
                                 const path = `${cycleFolder}/${unitFolder}/${truck.id}/slot${s}.jpg`;
                                 return `
                                     <div class="image-slot min-h-0 h-full w-full bg-slate-100/80 rounded-2xl border border-slate-100 relative group overflow-hidden cursor-pointer shadow-sm flex items-center justify-center">
-                                        <img src="${path}" 
-                                             onerror="handleImgError(this)" 
-                                             onclick="openZoom('${path}')"
+                                        <img src="${path}" onerror="handleImgError(this)" onclick="openZoom('${path}')"
                                              class="max-w-full max-h-full object-contain z-10 transition-transform duration-500 group-hover:scale-105">
-                                        <i data-lucide="image" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-slate-200 z-0"></i>
                                         <i data-lucide="maximize-2" class="absolute bottom-2 right-2 w-3 h-3 text-[#E30613] opacity-0 group-hover:opacity-100 transition-opacity z-20"></i>
-                                    </div>
-                                `;
+                                    </div>`;
                             }).join('')}
                         </div>
-                    </div>
-                `;
+                    </div>`;
             }).join('');
 
-            const dots = document.getElementById('pagination-dots');
-            dots.innerHTML = list.map((_, i) => `<div class="h-1 rounded-full transition-all duration-300 ${currentIndex === i ? 'w-4 bg-[#E30613]' : 'w-1 bg-slate-200'}"></div>`).join('');
-
+            document.getElementById('pagination-dots').innerHTML = list.map((_, i) => `<div class="h-1 rounded-full transition-all duration-300 ${currentIndex === i ? 'w-4 bg-[#E30613]' : 'w-1 bg-slate-200'}"></div>`).join('');
+            preloadNextVehicle(list, currentIndex);
             lucide.createIcons();
         }
 
-        // --- INTERAÇÕES ---
         function changeUnit(unit) { activeUnit = unit; currentIndex = 0; render(); }
         function setStep(i) { currentIndex = i; render(); }
-        
         document.getElementById('prev-btn').onclick = () => { if(currentIndex > 0) { currentIndex--; render(); } };
         document.getElementById('next-btn').onclick = () => { 
             const list = fleetData[activeUnit].filter(t => t.id.includes(searchTerm));
             if(currentIndex < list.length - 1) { currentIndex++; render(); } 
         };
-
         document.getElementById('search-input').oninput = (e) => {
-            const val = e.target.value.trim();
-            searchTerm = val;
-            if (val.length >= 2) {
+            searchTerm = e.target.value.trim();
+            if (searchTerm.length >= 2) {
                 for (const unit in fleetData) {
-                    const foundIndex = fleetData[unit].findIndex(t => t.id === val);
-                    if (foundIndex !== -1) {
-                        if (activeUnit !== unit) {
-                            activeUnit = unit;
-                            currentIndex = foundIndex;
-                            render(true);
-                            return;
-                        } else {
-                            currentIndex = foundIndex;
-                            render();
-                            return;
-                        }
-                    }
+                    const idx = fleetData[unit].findIndex(t => t.id === searchTerm);
+                    if (idx !== -1) { activeUnit = unit; currentIndex = idx; render(true); return; }
                 }
             }
-            currentIndex = 0;
-            render();
+            currentIndex = 0; render();
         };
-
         window.addEventListener('keydown', (e) => {
-            const searchInput = document.getElementById('search-input');
-            if (document.activeElement === searchInput) return;
-            
+            if (document.activeElement === document.getElementById('search-input')) return;
             if (e.key === 'ArrowRight') document.getElementById('next-btn').click();
             else if (e.key === 'ArrowLeft') document.getElementById('prev-btn').click();
             else if (e.key === 'Escape') document.getElementById('lightbox-modal').style.display = 'none';
-            
-            // Nova função: Ativa comparação com a tecla 'C' se estiver em Fullscreen
-            if ((e.key === 'c' || e.key === 'C') && document.fullscreenElement) {
-                toggleComparison();
-            }
+            if ((e.key === 'c' || e.key === 'C') && document.fullscreenElement) toggleComparison();
         });
-
         function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen();
-            } else {
-                if (document.exitFullscreen) document.exitFullscreen();
-            }
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+            else if (document.exitFullscreen) document.exitFullscreen();
         }
-
         window.onload = render;
     </script>
 </body>
