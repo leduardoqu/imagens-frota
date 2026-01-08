@@ -52,9 +52,14 @@
         .comparison-active header, 
         .comparison-active footer,
         .comparison-active #current-unit-label,
-        .comparison-active #notes-container,
         .comparison-active .nav-controls-container {
             display: none !important;
+        }
+
+        /* Mantendo observações visíveis no modo comparação */
+        .comparison-active #notes-container {
+            display: flex !important;
+            margin-top: 5px;
         }
 
         .comparison-active #main-display { padding: 10px !important; }
@@ -63,8 +68,12 @@
         
         .comparison-active #cycles-grid {
             gap: 10px !important;
-            height: calc(100vh - 60px) !important;
+            height: calc(100vh - 80px) !important;
         }
+
+        /* Melhoria: Esconder ícone enquanto carrega */
+        .img-placeholder-icon { opacity: 0; transition: opacity 0.3s; }
+        .show-error-icon .img-placeholder-icon { opacity: 1; }
     </style>
 </head>
 <body class="bg-[#F8FAFC] text-slate-900 h-screen flex flex-col">
@@ -349,10 +358,21 @@
         let currentIndex = 0;
         let searchTerm = "";
 
-        // FUNÇÃO PARA ESCONDER SLOT CASO IMAGEM NÃO EXISTA
+        // Melhoria: Gerenciar visibilidade do ícone e da imagem
+        function handleImgLoad(img) {
+            img.classList.remove('opacity-0');
+            img.classList.add('opacity-100');
+        }
+
         function handleImgError(img) {
-            const container = img.closest('.image-slot');
-            if (container) container.style.display = 'none';
+            setTimeout(() => {
+                if (img.complete && img.naturalHeight === 0) {
+                    const container = img.closest('.image-slot');
+                    if (container) {
+                        container.classList.add('show-error-icon');
+                    }
+                }
+            }, 500);
         }
 
         // FUNÇÃO ZOOM
@@ -470,10 +490,11 @@
                                 return `
                                     <div class="image-slot min-h-0 h-full w-full bg-slate-100/80 rounded-2xl border border-slate-100 relative group overflow-hidden cursor-pointer shadow-sm flex items-center justify-center">
                                         <img src="${path}" 
+                                             onload="handleImgLoad(this)"
                                              onerror="handleImgError(this)" 
                                              onclick="openZoom('${path}')"
-                                             class="max-w-full max-h-full object-contain z-10 transition-transform duration-500 group-hover:scale-105">
-                                        <i data-lucide="image" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-slate-200 z-0"></i>
+                                             class="opacity-0 max-w-full max-h-full object-contain z-10 transition-all duration-500 group-hover:scale-105">
+                                        <i data-lucide="image" class="img-placeholder-icon absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-slate-200 z-0"></i>
                                         <i data-lucide="maximize-2" class="absolute bottom-2 right-2 w-3 h-3 text-[#E30613] opacity-0 group-hover:opacity-100 transition-opacity z-20"></i>
                                     </div>
                                 `;
@@ -531,7 +552,6 @@
             else if (e.key === 'ArrowLeft') document.getElementById('prev-btn').click();
             else if (e.key === 'Escape') document.getElementById('lightbox-modal').style.display = 'none';
             
-            // Nova função: Ativa comparação com a tecla 'C' se estiver em Fullscreen
             if ((e.key === 'c' || e.key === 'C') && document.fullscreenElement) {
                 toggleComparison();
             }
