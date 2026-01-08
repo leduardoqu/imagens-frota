@@ -53,7 +53,8 @@
         .comparison-active header, 
         .comparison-active footer,
         .comparison-active #current-unit-label,
-        .comparison-active .nav-controls-container {
+        .comparison-active .nav-controls-container,
+        .comparison-active #btn-open-menu {
             display: none !important;
         }
 
@@ -77,6 +78,9 @@
             z-index: 60;
         }
         #options-menu.open { transform: translateX(0); }
+
+        /* Classe para forçar quebra de página no PDF */
+        .pdf-page-break { page-break-after: always; }
     </style>
 </head>
 <body class="bg-[#F8FAFC] text-slate-900 h-screen flex flex-col">
@@ -85,13 +89,13 @@
         <img id="lightbox-img" src="" class="max-w-[95%] max-h-[95%] object-contain rounded-lg shadow-2xl">
     </div>
 
-    <button onclick="toggleMenu()" class="fixed top-12 right-6 z-50 bg-slate-900 text-white p-3 rounded-full shadow-xl hover:bg-[#E30613] transition-all">
-        <i data-lucide="menu" class="w-5 h-5"></i>
+    <button id="btn-open-menu" onclick="toggleMenu()" class="fixed bottom-6 right-6 z-50 bg-slate-900 text-white p-2.5 rounded-full shadow-xl hover:bg-[#E30613] transition-all scale-90 hover:scale-100">
+        <i data-lucide="menu" class="w-4 h-4"></i>
     </button>
 
     <aside id="options-menu" class="fixed top-0 right-0 h-full w-80 bg-white shadow-2xl flex flex-col border-l border-slate-200">
         <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-            <h2 class="font-black text-[10px] uppercase tracking-widest text-slate-900">Configurações & PDF</h2>
+            <h2 class="font-black text-[10px] uppercase tracking-widest text-slate-900">Configurações & PDF Único</h2>
             <button onclick="toggleMenu()" class="text-slate-400 hover:text-red-600"><i data-lucide="x" class="w-5 h-5"></i></button>
         </div>
         
@@ -109,19 +113,23 @@
 
             <div>
                 <div class="flex justify-between items-center mb-3">
-                    <label class="text-[9px] font-black text-slate-400 uppercase block italic">2. Veículos para Exportação</label>
-                    <button onclick="selectAllTrucks(true)" class="text-[8px] font-bold text-[#E30613] hover:underline">Todos</button>
+                    <label class="text-[9px] font-black text-slate-400 uppercase block italic">2. Veículos para o PDF Único</label>
+                    <div class="flex gap-2">
+                        <button onclick="selectAllTrucks(true)" class="text-[8px] font-bold text-[#E30613] hover:underline">Todos</button>
+                        <span class="text-slate-300">|</span>
+                        <button onclick="selectAllTrucks(false)" class="text-[8px] font-bold text-slate-400 hover:underline">Nenhum</button>
+                    </div>
                 </div>
-                <div id="pdf-truck-selection" class="space-y-1 max-h-80 overflow-y-auto pr-2 custom-scrollbar">
+                <div id="pdf-truck-selection" class="space-y-1 max-h-80 overflow-y-auto pr-2 custom-scrollbar border rounded-lg p-2 bg-slate-50/50">
                     </div>
             </div>
         </div>
 
         <div class="p-6 bg-slate-50 border-t border-slate-100">
-            <button onclick="downloadSelectedPDFs()" class="w-full bg-[#E30613] text-white py-4 rounded-xl font-black text-[9px] uppercase tracking-[0.2em] shadow-lg hover:bg-red-700 transition-all flex items-center justify-center gap-3">
-                <i data-lucide="file-text" class="w-4 h-4"></i> Gerar Relatórios PDF
+            <button id="btn-generate-pdf" onclick="downloadCombinedPDF()" class="w-full bg-[#E30613] text-white py-4 rounded-xl font-black text-[9px] uppercase tracking-[0.2em] shadow-lg hover:bg-red-700 transition-all flex items-center justify-center gap-3">
+                <i data-lucide="layers" class="w-4 h-4"></i> Gerar PDF Único
             </button>
-            <p class="text-center text-[8px] text-slate-400 mt-3 font-bold uppercase italic">Cada veículo será uma página A4 única</p>
+            <p class="text-center text-[7px] text-slate-400 mt-3 font-bold uppercase italic tracking-tighter">O sistema agrupará todos os selecionados em um só arquivo</p>
         </div>
     </aside>
 
@@ -424,7 +432,7 @@
             document.getElementById('lightbox-modal').style.display = 'flex';
         }
 
-        /* --- LÓGICA DO MENU DE OPÇÕES & PDF --- */
+        /* --- LÓGICA DO MENU DE OPÇÕES & PDF CONSOLDIDADO --- */
         function toggleMenu() {
             const menu = document.getElementById('options-menu');
             menu.classList.toggle('open');
@@ -437,7 +445,7 @@
             const list = fleetData[unit].sort((a,b) => parseInt(a.id) - parseInt(b.id));
             
             container.innerHTML = list.map(t => `
-                <label class="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-lg cursor-pointer transition-all border border-transparent hover:border-slate-100">
+                <label class="flex items-center gap-3 p-2 hover:bg-slate-100 rounded-lg cursor-pointer transition-all">
                     <input type="checkbox" value="${t.id}" class="pdf-checkbox w-4 h-4 accent-[#E30613] rounded">
                     <span class="text-[11px] font-black text-slate-700 tracking-tighter">${t.id}</span>
                 </label>
@@ -448,84 +456,83 @@
             document.querySelectorAll('.pdf-checkbox').forEach(cb => cb.checked = state);
         }
 
-        async function downloadSelectedPDFs() {
+        async function downloadCombinedPDF() {
             const unit = document.getElementById('pdf-unit-filter').value;
             const checkboxes = document.querySelectorAll('.pdf-checkbox:checked');
-            if(checkboxes.length === 0) return alert("Selecione pelo menos um veículo.");
+            if(checkboxes.length === 0) return alert("Selecione os veículos para o PDF Único.");
 
-            const btn = document.querySelector('[onclick="downloadSelectedPDFs()"]');
+            const btn = document.getElementById('btn-generate-pdf');
             const originalContent = btn.innerHTML;
-            btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Processando...';
+            btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Criando Arquivo Único...';
             lucide.createIcons();
 
-            for (const cb of checkboxes) {
-                const truck = fleetData[unit].find(t => t.id === cb.value);
-                await generateSinglePDF(truck, unit);
+            const masterContainer = document.createElement('div');
+
+            for (let idx = 0; idx < checkboxes.length; idx++) {
+                const truck = fleetData[unit].find(t => t.id === checkboxes[idx].value);
+                const page = document.createElement('div');
+                if (idx < checkboxes.length - 1) page.className = 'pdf-page-break';
+                page.style.cssText = 'padding: 8mm; background: white; width: 280mm; min-height: 195mm; position: relative; font-family: sans-serif; box-sizing: border-box;';
+                
+                page.innerHTML = `
+                    <div style="border-bottom: 4px solid #E30613; padding-bottom: 4mm; margin-bottom: 6mm; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h1 style="margin: 0; font-size: 22pt; font-weight: 900; color: #E30613;">COSTA BRASIL</h1>
+                            <p style="margin: 0; font-size: 8pt; font-weight: bold; color: #64748b; letter-spacing: 1px;">RELATÓRIO TÉCNICO DE FROTA 2025</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <span style="font-size: 28pt; font-weight: 900; line-height: 1; color: #0f172a;">ID: ${truck.id}</span>
+                            <div style="font-size: 10pt; font-weight: 800; color: #64748b; text-transform: uppercase;">UNIDADE: ${unit}</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 6mm; display: flex; gap: 4mm; flex-wrap: wrap;">
+                        ${truck.transfer ? `<div style="background: #E30613; color: white; padding: 1.5mm 4mm; border-radius: 4px; font-size: 8pt; font-weight: 900; text-transform: uppercase;">${truck.transfer}</div>` : ''}
+                        ${truck.notes ? `<div style="background: #0f172a; color: white; padding: 1.5mm 4mm; border-radius: 4px; font-size: 8pt; font-weight: 900; text-transform: uppercase;">${truck.notes}</div>` : ''}
+                    </div>
+
+                    <div style="display: flex; gap: 4mm; justify-content: space-between; align-items: stretch;">
+                        ${[0, 1, 2].map(i => {
+                            const cycleFolder = FOLDER_MAP.cycles[i];
+                            const unitFolder = FOLDER_MAP.units[unit];
+                            const isActive = truck.active[i];
+                            return `
+                            <div style="flex: 1; border: 1.5px solid ${isActive ? '#e2e8f0' : '#f1f5f9'}; border-radius: 10px; padding: 3mm; background: ${isActive ? '#ffffff' : '#fcfcfc'}; opacity: ${isActive ? '1' : '0.2'};">
+                                <div style="font-size: 10pt; font-weight: 900; color: #E30613; border-bottom: 1px solid #f1f5f9; padding-bottom: 1.5mm; margin-bottom: 3mm; display: flex; justify-content: space-between; align-items: center;">
+                                    <span>${cycleInfo[i].label}</span>
+                                    <span style="font-size: 7pt; color: #94a3b8; font-weight: bold;">${truck.months[i] || 'PENDENTE'}</span>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2.5mm;">
+                                    ${[1, 2, 3, 4].map(s => `
+                                        <div style="aspect-ratio: 4/3; background: #f8fafc; border-radius: 6px; overflow: hidden; border: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: center;">
+                                            <img src="${cycleFolder}/${unitFolder}/${truck.id}/slot${s}.jpg" style="max-width: 100%; max-height: 100%; object-fit: contain;" onerror="this.style.opacity='0'">
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>`;
+                        }).join('')}
+                    </div>
+
+                    <div style="position: absolute; bottom: 8mm; left: 8mm; right: 8mm; border-top: 1px solid #f1f5f9; padding-top: 3mm; font-size: 7pt; color: #cbd5e1; text-align: center; font-weight: 800;">
+                        COSTA BRASIL DISTRIBUIDORA DE BEBIDAS - EMITIDO EM ${new Date().toLocaleDateString()} | VEÍCULO ${idx + 1} DE ${checkboxes.length}
+                    </div>
+                `;
+                masterContainer.appendChild(page);
             }
-
-            btn.innerHTML = originalContent;
-            lucide.createIcons();
-            toggleMenu();
-        }
-
-        async function generateSinglePDF(truck, unit) {
-            const element = document.createElement('div');
-            // Medidas A4 Paisagem (297mm x 210mm) com margens reduzidas para não cortar
-            element.style.cssText = 'padding: 8mm; background: white; width: 280mm; min-height: 195mm; position: relative; font-family: sans-serif; box-sizing: border-box;';
-            
-            element.innerHTML = `
-                <div style="border-bottom: 4px solid #E30613; padding-bottom: 4mm; margin-bottom: 6mm; display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <h1 style="margin: 0; font-size: 22pt; font-weight: 900; color: #E30613;">COSTA BRASIL</h1>
-                        <p style="margin: 0; font-size: 8pt; font-weight: bold; color: #64748b; letter-spacing: 1px;">RELATÓRIO TÉCNICO DE FROTA 2025</p>
-                    </div>
-                    <div style="text-align: right;">
-                        <span style="font-size: 28pt; font-weight: 900; line-height: 1; color: #0f172a;">ID: ${truck.id}</span>
-                        <div style="font-size: 10pt; font-weight: 800; color: #64748b; text-transform: uppercase;">UNIDADE: ${unit}</div>
-                    </div>
-                </div>
-
-                <div style="margin-bottom: 6mm; display: flex; gap: 4mm; flex-wrap: wrap;">
-                    ${truck.transfer ? `<div style="background: #E30613; color: white; padding: 1.5mm 4mm; border-radius: 4px; font-size: 8pt; font-weight: 900; text-transform: uppercase;">${truck.transfer}</div>` : ''}
-                    ${truck.notes ? `<div style="background: #0f172a; color: white; padding: 1.5mm 4mm; border-radius: 4px; font-size: 8pt; font-weight: 900; text-transform: uppercase;">${truck.notes}</div>` : ''}
-                </div>
-
-                <div style="display: flex; gap: 4mm; justify-content: space-between; align-items: stretch;">
-                    ${[0, 1, 2].map(i => {
-                        const cycleFolder = FOLDER_MAP.cycles[i];
-                        const unitFolder = FOLDER_MAP.units[unit];
-                        const isActive = truck.active[i];
-                        return `
-                        <div style="flex: 1; border: 1.5px solid ${isActive ? '#e2e8f0' : '#f1f5f9'}; border-radius: 10px; padding: 3mm; background: ${isActive ? '#ffffff' : '#fcfcfc'}; opacity: ${isActive ? '1' : '0.2'};">
-                            <div style="font-size: 10pt; font-weight: 900; color: #E30613; border-bottom: 1px solid #f1f5f9; padding-bottom: 1.5mm; margin-bottom: 3mm; display: flex; justify-content: space-between; align-items: center;">
-                                <span>${cycleInfo[i].label}</span>
-                                <span style="font-size: 7pt; color: #94a3b8; font-weight: bold;">${truck.months[i] || 'PENDENTE'}</span>
-                            </div>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2.5mm;">
-                                ${[1, 2, 3, 4].map(s => `
-                                    <div style="aspect-ratio: 4/3; background: #f8fafc; border-radius: 6px; overflow: hidden; border: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: center;">
-                                        <img src="${cycleFolder}/${unitFolder}/${truck.id}/slot${s}.jpg" style="max-width: 100%; max-height: 100%; object-fit: contain;" onerror="this.style.opacity='0'">
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>`;
-                    }).join('')}
-                </div>
-
-                <div style="position: absolute; bottom: 8mm; left: 8mm; right: 8mm; border-top: 1px solid #f1f5f9; padding-top: 3mm; font-size: 7pt; color: #cbd5e1; text-align: center; font-weight: 800;">
-                    COSTA BRASIL DISTRIBUIDORA DE BEBIDAS - EMITIDO EM ${new Date().toLocaleDateString()}
-                </div>
-            `;
 
             const opt = {
                 margin: 0,
-                filename: `Relatorio_CB_${truck.id}_2025.pdf`,
+                filename: `Relatorio_Consolidado_CB_${unit}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2, useCORS: true, logging: false },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
             };
 
-            await html2pdf().set(opt).from(element).save();
+            await html2pdf().set(opt).from(masterContainer).save();
+
+            btn.innerHTML = originalContent;
+            lucide.createIcons();
+            toggleMenu();
         }
 
         /* --- LÓGICA DE COMPARAÇÃO --- */
