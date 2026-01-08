@@ -6,35 +6,27 @@
     <title>CB - Imagens Frota 2025</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         .custom-scrollbar::-webkit-scrollbar { width: 3px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #E30613; border-radius: 10px; }
         body { font-family: 'Inter', sans-serif; overflow: hidden; background: #FFFFFF; }
         
-        /* Animação suave de entrada (vinda de baixo) */
         .slide-up-active {
             animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .unit-jump-glow { animation: glow 1.5s ease-out; }
         @keyframes glow { 0% { background-color: rgba(227, 6, 19, 0.2); } 100% { background-color: transparent; } }
         
-        /* Ajuste para modo Fullscreen */
         :fullscreen body { background-color: #F8FAFC; }
         :-webkit-full-screen body { background-color: #F8FAFC; }
 
-        /* Estilo para Lightbox (Tela Cheia) */
         #lightbox-modal {
             display: none;
             position: fixed;
@@ -47,7 +39,6 @@
             cursor: zoom-out;
         }
 
-        /* --- ESTILOS PARA O MODO COMPARAÇÃO --- */
         .comparison-active aside, 
         .comparison-active header, 
         .comparison-active footer,
@@ -56,7 +47,6 @@
             display: none !important;
         }
 
-        /* Mantendo observações visíveis no modo comparação */
         .comparison-active #notes-container {
             display: flex !important;
             margin-top: 5px;
@@ -71,9 +61,11 @@
             height: calc(100vh - 80px) !important;
         }
 
-        /* Melhoria: Esconder ícone enquanto carrega */
         .img-placeholder-icon { opacity: 0; transition: opacity 0.3s; }
         .show-error-icon .img-placeholder-icon { opacity: 1; }
+
+        /* Estilos específicos para o PDF (Escondidos na tela) */
+        #pdf-template { display: none; }
     </style>
 </head>
 <body class="bg-[#F8FAFC] text-slate-900 h-screen flex flex-col">
@@ -81,6 +73,11 @@
     <div id="lightbox-modal" onclick="this.style.display='none'">
         <img id="lightbox-img" src="" class="max-w-[95%] max-h-[95%] object-contain rounded-lg shadow-2xl">
     </div>
+
+    <button onclick="generatePDF()" title="Baixar Relatório PDF" class="fixed bottom-8 right-8 z-50 bg-slate-900 text-white p-3 rounded-full shadow-2xl hover:bg-[#E30613] transition-all hover:scale-110 active:scale-95 group">
+        <i data-lucide="download" class="w-5 h-5"></i>
+        <span class="absolute right-full mr-3 bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">GERAR PDF</span>
+    </button>
 
     <header class="bg-[#E30613] text-white h-11 flex justify-between items-center px-6 shrink-0 z-30 shadow-md">
         <div class="flex items-center gap-3">
@@ -122,9 +119,7 @@
         </aside>
 
         <section id="main-display" class="flex-1 flex flex-col p-4 bg-white overflow-hidden relative">
-            
             <div id="animated-content" class="flex-1 flex flex-col slide-up-active overflow-hidden">
-                
                 <div class="header-info-wrapper flex justify-between items-center mb-3 border-b pb-3 border-slate-100 relative z-10 shrink-0">
                     <div class="flex flex-col">
                         <div class="flex items-center gap-2 text-[#E30613] font-black text-[8px] tracking-[0.3em] mb-1 italic leading-none">
@@ -165,20 +160,14 @@
     </main>
 
     <script>
-        // --- MAPEAMENTO DE PASTAS PARA BUSCA AUTOMÁTICA ---
         const FOLDER_MAP = {
             cycles: ["primeiro_ciclo", "segundo_ciclo", "terceiro_ciclo"],
             units: {
-                "CB NORTE": "norte",
-                "CB SUL": "sul",
-                "BARREIRAS": "barreiras",
-                "JUAZEIRO": "juazeiro",
-                "OT": "ot",
-                "OBSERVAÇÕES": "norte"
+                "CB NORTE": "norte", "CB SUL": "sul", "BARREIRAS": "barreiras",
+                "JUAZEIRO": "juazeiro", "OT": "ot", "OBSERVAÇÕES": "norte"
             }
         };
 
-        // --- BASE DE DADOS COMPLETA E ATUALIZADA ---
         const fleetData = {
             "CB NORTE": [
                 { id: "155", active: [true, false, false], months: ["JUNHO", "AGOSTO", "NOVEMBRO"], transfer: "TRANSFERIDO PARA CB SUL EM JUNHO", notes: "IMAGENS TIRADAS NA CB SUL EM JUNHO"},
@@ -270,9 +259,7 @@
                 { id: "263", active: [true, true, true], months: ["JUNHO", "SETEMBRO", "OUTUBRO"] },
                 { id: "264", active: [true, true, true], months: ["JUNHO", "SETEMBRO", "OUTUBRO"] },
                 { id: "266", active: [true, true, true], months: ["MAIO", "SETEMBRO", "DEZEMBRO"] },
-                { id: "269", active: [true, false, false], months: ["MAIO", "AGOSTO", "NOVEMBRO"], transfer: "TRANSFERIDO PARA A CB SUL EM JUNHO", notes:"IMAGENS TIRADAS EM JUNHO NA CB SUL"
-
-                 },
+                { id: "269", active: [true, false, false], months: ["MAIO", "AGOSTO", "NOVEMBRO"], transfer: "TRANSFERIDO PARA A CB SUL EM JUNHO", notes:"IMAGENS TIRADAS EM JUNHO NA CB SUL" },
                 { id: "281", active: [true, true, true], months: ["MAIO", "SETEMBRO", "DEZEMBRO"] }
             ],
             "JUAZEIRO": [
@@ -358,7 +345,6 @@
         let currentIndex = 0;
         let searchTerm = "";
 
-        // Melhoria: Gerenciar visibilidade do ícone e da imagem
         function handleImgLoad(img) {
             img.classList.remove('opacity-0');
             img.classList.add('opacity-100');
@@ -375,15 +361,12 @@
             }, 500);
         }
 
-        // FUNÇÃO ZOOM
         function openZoom(src) {
             document.getElementById('lightbox-img').src = src;
             document.getElementById('lightbox-modal').style.display = 'flex';
         }
 
-        /* --- LÓGICA DO MODO COMPARAÇÃO --- */
         let isComparisonMode = false;
-
         function toggleComparison() {
             isComparisonMode = !isComparisonMode;
             const btn = document.getElementById('btn-comparison');
@@ -397,7 +380,6 @@
             lucide.createIcons();
         }
 
-        // Monitorar Tela Cheia para mostrar/esconder o botão
         document.addEventListener('fullscreenchange', () => {
             const btn = document.getElementById('btn-comparison');
             if (document.fullscreenElement) {
@@ -408,7 +390,6 @@
             }
         });
 
-        // --- LÓGICA DE RENDERIZAÇÃO ---
         function render(isUnitJump = false) {
             const list = fleetData[activeUnit]
                 .filter(t => t.id.includes(searchTerm))
@@ -510,7 +491,6 @@
             lucide.createIcons();
         }
 
-        // --- INTERAÇÕES ---
         function changeUnit(unit) { activeUnit = unit; currentIndex = 0; render(); }
         function setStep(i) { currentIndex = i; render(); }
         
@@ -547,22 +527,80 @@
         window.addEventListener('keydown', (e) => {
             const searchInput = document.getElementById('search-input');
             if (document.activeElement === searchInput) return;
-            
             if (e.key === 'ArrowRight') document.getElementById('next-btn').click();
             else if (e.key === 'ArrowLeft') document.getElementById('prev-btn').click();
             else if (e.key === 'Escape') document.getElementById('lightbox-modal').style.display = 'none';
-            
-            if ((e.key === 'c' || e.key === 'C') && document.fullscreenElement) {
-                toggleComparison();
-            }
+            if ((e.key === 'c' || e.key === 'C') && document.fullscreenElement) toggleComparison();
         });
 
         function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen();
-            } else {
-                if (document.exitFullscreen) document.exitFullscreen();
-            }
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+            else if (document.exitFullscreen) document.exitFullscreen();
+        }
+
+        // --- FUNÇÃO PARA GERAR O PDF ---
+        async function generatePDF() {
+            const list = fleetData[activeUnit].filter(t => t.id.includes(searchTerm)).sort((a, b) => parseInt(a.id) - parseInt(b.id));
+            const truck = list[currentIndex];
+            if (!truck) return;
+
+            // Criar um container temporário para o PDF
+            const element = document.createElement('div');
+            element.style.padding = '30px';
+            element.style.background = '#FFFFFF';
+            element.style.color = '#1e293b';
+
+            // Montar HTML do PDF
+            element.innerHTML = `
+                <div style="border-bottom: 4px solid #E30613; padding-bottom: 15px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h1 style="margin: 0; font-size: 24px; font-weight: 900; color: #E30613;">COSTA BRASIL</h1>
+                        <p style="margin: 0; font-size: 10px; font-weight: bold; letter-spacing: 2px; color: #64748b;">RELATÓRIO DE FROTA 2025</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <span style="font-size: 32px; font-weight: 900;">ID: ${truck.id}</span>
+                        <div style="font-size: 10px; font-weight: bold; color: #64748b; text-transform: uppercase;">UNIDADE: ${activeUnit}</div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 25px; display: flex; gap: 10px; flex-wrap: wrap;">
+                    ${truck.transfer ? `<div style="background: #E30613; color: white; padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: 900;">TRANSF: ${truck.transfer}</div>` : ''}
+                    ${truck.notes ? `<div style="background: #0f172a; color: white; padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: 900;">OBS: ${truck.notes}</div>` : ''}
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                    ${[0, 1, 2].map(i => {
+                        const isActive = truck.active[i];
+                        const cycleFolder = FOLDER_MAP.cycles[i];
+                        const unitFolder = FOLDER_MAP.units[activeUnit];
+                        
+                        return `
+                            <div style="border: 1px solid ${isActive ? '#e2e8f0' : '#f1f5f9'}; border-radius: 12px; padding: 10px; opacity: ${isActive ? '1' : '0.3'};">
+                                <div style="font-size: 10px; font-weight: 900; color: #E30613; margin-bottom: 5px;">${cycleInfo[i].label}</div>
+                                <div style="font-size: 8px; color: #94a3b8; font-weight: bold; margin-bottom: 10px;">${truck.months[i] || '---'}</div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
+                                    ${[1, 2, 3, 4].map(s => `<img src="${cycleFolder}/${unitFolder}/${truck.id}/slot${s}.jpg" style="width: 100%; border-radius: 4px; background: #f8fafc;" onerror="this.style.display='none'">`).join('')}
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+
+                <div style="margin-top: 40px; border-top: 1px solid #f1f5f9; padding-top: 10px; font-size: 8px; color: #cbd5e1; text-align: center; font-weight: bold;">
+                    Documento gerado automaticamente pelo Sistema de Frota CB em ${new Date().toLocaleDateString()}
+                </div>
+            `;
+
+            const opt = {
+                margin: 5,
+                filename: `Relatorio_Veiculo_${truck.id}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+            };
+
+            // Iniciar Download
+            html2pdf().set(opt).from(element).save();
         }
 
         window.onload = render;
