@@ -108,6 +108,7 @@
                     <option value="BARREIRAS">BARREIRAS</option>
                     <option value="JUAZEIRO">JUAZEIRO</option>
                     <option value="OT">OT</option>
+                    <option value="OBSERVAÇÕES">OBSERVAÇÕES</option>
                 </select>
             </div>
 
@@ -269,7 +270,7 @@
                 { id: "324", active: [false, false, true], months: [null, null, "DEZEMBRO"], transfer: "VEÍCULO NOVO", notes: "DATA DE CHEGADA: "}
             ],
             "CB SUL": [
-                { id: "113", active: [true, true, true], months: ["MAIO", "AGOSTO", "DEZEMBRO"] },
+                { id: "113", active: [false, true, true], months: ["MAIO", "AGOSTO", "DEZEMBRO"], notes: "TOMABDO NO 1º CICLO" },
                 { id: "146", active: [true, false, false], months: ["JUNNHO", "SETEMBRO", "DEZEMBRO"], transfer: "TRANFERIDO PARA BARREIRAS NO 2º CICLO" },
                 { id: "155", active: [true, true, true], months: ["JUNHO", "AGOSTO", "NOVEMBRO"], transfer: "RECEBIDO DA CB NORTE" },
                 { id: "178", active: [true, true, true], months: ["MAIO", "SETEMBRO", "NOVEMBRO"] },
@@ -416,14 +417,12 @@
         }
 
         function handleImgError(img) {
-            setTimeout(() => {
-                if (img.complete && img.naturalHeight === 0) {
-                    const container = img.closest('.image-slot');
-                    if (container) {
-                        container.classList.add('show-error-icon');
-                    }
-                }
-            }, 500);
+            // AJUSTE: Oculta a imagem e mostra apenas o ícone de placeholder customizado
+            img.style.display = 'none';
+            const container = img.closest('.image-slot');
+            if (container) {
+                container.classList.add('show-error-icon');
+            }
         }
 
         // FUNÇÃO ZOOM
@@ -505,7 +504,7 @@
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2.5mm;">
                                     ${[1, 2, 3, 4].map(s => `
                                         <div style="aspect-ratio: 4/3; background: #f8fafc; border-radius: 6px; overflow: hidden; border: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: center;">
-                                            <img src="${cycleFolder}/${unitFolder}/${truck.id}/slot${s}.jpg" style="max-width: 100%; max-height: 100%; object-fit: contain;" onerror="this.style.opacity='0'">
+                                            <img src="${cycleFolder}/${unitFolder}/${truck.id}/slot${s}.jpg" style="max-width: 100%; max-height: 100%; object-fit: contain;" onerror="this.style.display='none'">
                                         </div>
                                     `).join('')}
                                 </div>
@@ -514,7 +513,7 @@
                     </div>
 
                     <div style="position: absolute; bottom: 8mm; left: 8mm; right: 8mm; border-top: 1px solid #f1f5f9; padding-top: 3mm; font-size: 7pt; color: #cbd5e1; text-align: center; font-weight: 800;">
-                        COSTA BRASIL DISTRIBUIDORA DE BEBIDAS - EMITIDO EM ${new Date().toLocaleDateString()} | VEÍCULO ${idx + 1} DE ${checkboxes.length}
+                        CB DISTRIBUIDORA DE BEBIDAS - EMITIDO EM ${new Date().toLocaleDateString()} | VEÍCULO ${idx + 1} DE ${checkboxes.length}
                     </div>
                 `;
                 masterContainer.appendChild(page);
@@ -522,7 +521,7 @@
 
             const opt = {
                 margin: 0,
-                filename: `Relatorio_Consolidado_CB_${unit}.pdf`,
+                filename: `Relatorio_Imagens_Frota_${unit}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2, useCORS: true, logging: false },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
