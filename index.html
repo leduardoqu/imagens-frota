@@ -237,7 +237,7 @@
         };
 
         // --- BASE DE DADOS COMPLETA E ATUALIZADA ---
-        const fleetData = {
+         const fleetData = {
             "CB NORTE": [
                 { id: "155", active: [true, false, false], months: ["JUNHO", "AGOSTO", "NOVEMBRO"], transfer: "TRANSFERIDO PARA CB SUL EM JUNHO", notes: "IMAGENS TIRADAS NA CB SUL EM JUNHO"},
                 { id: "158", active: [true, true, true], months: ["JUNHO", "SETEMBRO", "OUTUBRO"] },
@@ -290,7 +290,7 @@
                 { id: "219", active: [true, true, true], months: ["MAIO", "RECEBIDO", "NOVEMBRO"] },
                 { id: "220", active: [true, true, true], months: ["MAIO", "AGOSTO", "NOVEMBRO"] },
                 { id: "226", active: [true, true, true], months: ["MAIO", "AGOSTO", "NOVEMBRO"] },
-                { id: "228", active: [true, true, true], months: ["MAIO", "AGOSTO", "NOVEMBRO"], notes: "RECOUP. TOMBAMENTO" },
+                { id: "228", active: [false, false, true], months: ["MAIO", "AGOSTO", "NOVEMBRO"], notes: "EM RECUPERAÇÃO DE TOMBAMENTO NO 1º e 2º CICLO" },
                 { id: "233", active: [true, true, true], months: ["MAIO", "AGOSTO", "NOVEMBRO"] },
                 { id: "237", active: [true, true, false], months: ["JUNHO", "AGOSTO", null], notes: "TOMBADO NO 3º CICLO", transfer: "ATUALMENTE ESTÁ NA CB NORTE PARA MANUTENÇÃO" },
                 { id: "238", active: [true, true, true], months: ["MAIO", "AGOSTO", "NOVEMBRO"] },
@@ -301,11 +301,11 @@
                 { id: "268", active: [true, true, true], months: ["MAIO", "SETEMBRO", "DEZEMBRO"] },
                 { id: "269", active: [true, true, true], months: ["MAIO", "AGOSTO", "NOVEMBRO"], transfer: "RECEBIDO DE BARREIRAS EM MAIO" },
                 { id: "282", active: [true, true, true], months: ["MAIO", "AGOSTO", "NOVEMBRO"] },
-                { id: "325", active: [false, false, true], months: [null, null, "NOVEMBRO"] },
-                { id: "326", active: [false, false, true], months: [null, null, "NOVEMBRO"] },
-                { id: "327", active: [false, false, true], months: [null, null, "NOVEMBRO"] },
-                { id: "328", active: [false, false, true], months: [null, null, "NOVEMBRO"] },
-                { id: "329", active: [false, false, true], months: [null, null, "DEZEMBRO"] }
+                { id: "325", active: [false, false, true], months: [null, null, "NOVEMBRO"], transfer: "VEÍCULO NOVO", notes: "DATA DE CHEGADA: " },
+                { id: "326", active: [false, false, true], months: [null, null, "NOVEMBRO"], transfer: "VEÍCULO NOVO", notes: "DATA DE CHEGADA: " },
+                { id: "327", active: [false, false, true], months: [null, null, "NOVEMBRO"], transfer: "VEÍCULO NOVO", notes: "DATA DE CHEGADA: " },
+                { id: "328", active: [false, false, true], months: [null, null, "NOVEMBRO"], transfer: "VEÍCULO NOVO", notes: "DATA DE CHEGADA: " },
+                { id: "329", active: [false, false, true], months: [null, null, "DEZEMBRO"], transfer: "VEÍCULO NOVO", notes: "DATA DE CHEGADA: " }
             ],
             "BARREIRAS": [
                 { id: "120", active: [true, true, true], months: ["MAIO", "SETEMBRO", "DEZEMBRO"] },
@@ -397,10 +397,10 @@
                 { id: "308", active: [false, true, true], months: [null, "AGOSTO", "DEZEMBRO"] },
                 { id: "309", active: [false, false, true], months: [null, null, "DEZEMBRO"], notes: "NOVO" },
                 { id: "310", active: [false, true, true], months: [null, "SETEMBRO", "DEZEMBRO"] },
-                { id: "311", active: [false, false, true], months: [null, null, "DEZEMBRO"] },
-                { id: "312", active: [false, false, true], months: [null, null, "DEZEMBRO"] },
-                { id: "313", active: [false, false, true], months: [null, null, "DEZEMBRO"] },
-                { id: "314", active: [false, false, true], months: [null, null, "DEZEMBRO"] }
+                { id: "311", active: [false, false, true], months: [null, null, "DEZEMBRO"], transfer: "VEÍCULO NOVO", notes: "DATA DE CHEGADA: " },
+                { id: "312", active: [false, false, true], months: [null, null, "DEZEMBRO"], transfer: "VEÍCULO NOVO", notes: "DATA DE CHEGADA: " },
+                { id: "313", active: [false, false, true], months: [null, null, "DEZEMBRO"], transfer: "VEÍCULO NOVO", notes: "DATA DE CHEGADA: " },
+                { id: "314", active: [false, false, true], months: [null, null, "DEZEMBRO"], transfer: "VEÍCULO NOVO", notes: "DATA DE CHEGADA: " }
             ],
         };
 
@@ -419,6 +419,7 @@
             img.classList.remove('opacity-0');
             img.classList.add('opacity-100');
         }
+
         // FUNÇÃO ZOOM
         function openZoom(src) {
             if(!src) return;
