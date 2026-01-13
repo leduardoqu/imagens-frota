@@ -419,17 +419,6 @@
             img.classList.remove('opacity-0');
             img.classList.add('opacity-100');
         }
-
-        // CORREÇÃO: REMOVE O ÍCONE DE IMAGEM QUEBRADA DO NAVEGADOR
-        function handleImgError(img) {
-            img.style.display = 'none'; // Esconde a imagem completamente
-            img.removeAttribute('src'); // Remove o caminho para o navegador não tentar carregar nada
-            const container = img.closest('.image-slot');
-            if (container) {
-                container.classList.add('show-error-icon');
-            }
-        }
-
         // FUNÇÃO ZOOM
         function openZoom(src) {
             if(!src) return;
