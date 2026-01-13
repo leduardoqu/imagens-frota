@@ -67,9 +67,10 @@
             height: calc(100vh - 60px) !important;
         }
 
-        /* Melhoria: Esconder ícone enquanto carrega */
-        .img-placeholder-icon { opacity: 0; transition: opacity 0.3s; }
-        .show-error-icon .img-placeholder-icon { opacity: 1; }
+        /* Melhoria: Esconder ícone enquanto carrega e remover bordas de erro do navegador */
+        .img-placeholder-icon { opacity: 0.2; transition: opacity 0.3s; }
+        .show-error-icon .img-placeholder-icon { opacity: 1; color: #cbd5e1; }
+        img:not([src]) { visibility: hidden; } /* Remove o ícone de "quebrado" do navegador */
 
         /* Menu Lateral de Opções */
         #options-menu {
@@ -211,7 +212,7 @@
 
             </div> <footer class="mt-2 h-5 shrink-0 flex justify-between items-center border-t border-slate-100 pt-1">
                 <div id="pagination-dots" class="flex gap-1"></div>
-                <span class="text-[8px] font-black text-slate-300 uppercase tracking-[0.4em] italic leading-none">Costa Brasil Distribuidora de Bebidas</span>
+                <span class="text-[10px] font-black text-slate-300 uppercase tracking-[0.4em] italic leading-none">Costa Brasil Distribuidora de Bebidas</span>
             </footer>
         </section>
     </main>
@@ -238,7 +239,7 @@
                 { id: "159", active: [true, true, true], months: ["JUNHO", "SETEMBRO", "NOVEMBRO"] },
                 { id: "160", active: [true, true, true], months: ["JUNHO", "SETEMBRO", "OUTUBRO"] },
                 { id: "161", active: [true, false, true], months: ["JUNHO", "EM REFORMA", "DEZEMBRO"], notes: "EM REFORMA 2º CICLO" },
-                { id: "162", active: [true, true, true], months: ["MANUTENÇÃO", "SETEMBRO", "OUTUBRO"], notes: "MANUNTENÇÃO EM JUNHO / IMAGENS 1º CICLO PENDENTE" },
+                { id: "162", active: [false, true, true], months: ["MANUTENÇÃO", "SETEMBRO", "OUTUBRO"], notes: "MANUNTENÇÃO EM JUNHO" },
                 { id: "163", active: [true, true, true], months: ["JUNHO", "SETEMBRO", "OUTUBRO"] },
                 { id: "164", active: [true, true, true], months: ["JUNHO", "SETEMBRO", "OUTUBRO"] },
                 { id: "210", active: [true, true, true], months: ["JUNHO", "SETEMBRO", "OUTUBRO"] },
@@ -295,11 +296,11 @@
                 { id: "268", active: [true, true, true], months: ["MAIO", "SETEMBRO", "DEZEMBRO"] },
                 { id: "269", active: [true, true, true], months: ["MAIO", "AGOSTO", "NOVEMBRO"], transfer: "RECEBIDO DE BARREIRAS EM MAIO" },
                 { id: "282", active: [true, true, true], months: ["MAIO", "AGOSTO", "NOVEMBRO"] },
-                { id: "325", active: [false, false, true], months: [null, null, "NOVEMBRO"] },
-                { id: "326", active: [false, false, true], months: [null, null, "NOVEMBRO"] },
-                { id: "327", active: [false, false, true], months: [null, null, "NOVEMBRO"] },
-                { id: "328", active: [false, false, true], months: [null, null, "NOVEMBRO"] },
-                { id: "329", active: [false, false, true], months: [null, null, "DEZEMBRO"] }
+                { id: "325", active: [false, false, true], months: [null, null, "NOVEMBRO"], transfer: "VEÍCULO NOVO", notes: "DATA DE CHEGADA: " },
+                { id: "326", active: [false, false, true], months: [null, null, "NOVEMBRO"], transfer: "VEÍCULO NOVO", notes: "DATA DE CHEGADA: " },
+                { id: "327", active: [false, false, true], months: [null, null, "NOVEMBRO"], transfer: "VEÍCULO NOVO", notes: "DATA DE CHEGADA: " },
+                { id: "328", active: [false, false, true], months: [null, null, "NOVEMBRO"], transfer: "VEÍCULO NOVO", notes: "DATA DE CHEGADA: " },
+                { id: "329", active: [false, false, true], months: [null, null, "DEZEMBRO"], transfer: "VEÍCULO NOVO", notes: "DATA DE CHEGADA: " }
             ],
             "BARREIRAS": [
                 { id: "120", active: [true, true, true], months: ["MAIO", "SETEMBRO", "DEZEMBRO"] },
@@ -322,9 +323,7 @@
                 { id: "263", active: [true, true, true], months: ["JUNHO", "SETEMBRO", "OUTUBRO"] },
                 { id: "264", active: [true, true, true], months: ["JUNHO", "SETEMBRO", "OUTUBRO"] },
                 { id: "266", active: [true, true, true], months: ["MAIO", "SETEMBRO", "DEZEMBRO"] },
-                { id: "269", active: [true, false, false], months: ["MAIO", "AGOSTO", "NOVEMBRO"], transfer: "TRANSFERIDO PARA A CB SUL EM JUNHO", notes:"IMAGENS TIRADAS EM JUNHO NA CB SUL"
-
-                 },
+                { id: "269", active: [true, false, false], months: ["MAIO", "AGOSTO", "NOVEMBRO"], transfer: "TRANSFERIDO PARA A CB SUL EM JUNHO", notes:"IMAGENS TIRADAS EM JUNHO NA CB SUL"},
                 { id: "281", active: [true, true, true], months: ["MAIO", "SETEMBRO", "DEZEMBRO"] }
             ],
             "JUAZEIRO": [
@@ -393,10 +392,10 @@
                 { id: "308", active: [false, true, true], months: [null, "AGOSTO", "DEZEMBRO"] },
                 { id: "309", active: [false, false, true], months: [null, null, "DEZEMBRO"], notes: "NOVO" },
                 { id: "310", active: [false, true, true], months: [null, "SETEMBRO", "DEZEMBRO"] },
-                { id: "311", active: [false, false, true], months: [null, null, "DEZEMBRO"] },
-                { id: "312", active: [false, false, true], months: [null, null, "DEZEMBRO"] },
-                { id: "313", active: [false, false, true], months: [null, null, "DEZEMBRO"] },
-                { id: "314", active: [false, false, true], months: [null, null, "DEZEMBRO"] }
+                { id: "311", active: [false, false, true], months: [null, null, "DEZEMBRO"], transfer: "VEÍCULO NOVO", notes: "DATA DE CHEGADA: " },
+                { id: "312", active: [false, false, true], months: [null, null, "DEZEMBRO"], transfer: "VEÍCULO NOVO", notes: "DATA DE CHEGADA: " },
+                { id: "313", active: [false, false, true], months: [null, null, "DEZEMBRO"], transfer: "VEÍCULO NOVO", notes: "DATA DE CHEGADA: " },
+                { id: "314", active: [false, false, true], months: [null, null, "DEZEMBRO"], transfer: "VEÍCULO NOVO", notes: "DATA DE CHEGADA: " }
             ],
         };
 
@@ -416,8 +415,9 @@
             img.classList.add('opacity-100');
         }
 
+        // MELHORIA: Limpar Placeholder removendo o src quebrado
         function handleImgError(img) {
-            // AJUSTE: Oculta a imagem e mostra apenas o ícone de placeholder customizado
+            img.removeAttribute('src'); // Evita o ícone de arquivo quebrado do navegador
             img.style.display = 'none';
             const container = img.closest('.image-slot');
             if (container) {
@@ -427,6 +427,7 @@
 
         // FUNÇÃO ZOOM
         function openZoom(src) {
+            if(!src) return;
             document.getElementById('lightbox-img').src = src;
             document.getElementById('lightbox-modal').style.display = 'flex';
         }
@@ -455,55 +456,51 @@
             document.querySelectorAll('.pdf-checkbox').forEach(cb => cb.checked = state);
         }
 
+        // MELHORIA: PDF Otimizado para velocidade
         async function downloadCombinedPDF() {
             const unit = document.getElementById('pdf-unit-filter').value;
             const checkboxes = document.querySelectorAll('.pdf-checkbox:checked');
-            if(checkboxes.length === 0) return alert("Selecione os veículos para o PDF Único.");
+            if(checkboxes.length === 0) return alert("Selecione os veículos para o PDF.");
 
             const btn = document.getElementById('btn-generate-pdf');
             const originalContent = btn.innerHTML;
-            btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Criando Arquivo Único...';
+            btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Criando Arquivo...';
             lucide.createIcons();
 
             const masterContainer = document.createElement('div');
+            masterContainer.style.width = "280mm";
 
             for (let idx = 0; idx < checkboxes.length; idx++) {
                 const truck = fleetData[unit].find(t => t.id === checkboxes[idx].value);
                 const page = document.createElement('div');
-                if (idx < checkboxes.length - 1) page.className = 'pdf-page-break';
-                page.style.cssText = 'padding: 8mm; background: white; width: 280mm; min-height: 195mm; position: relative; font-family: sans-serif; box-sizing: border-box;';
+                page.className = 'pdf-page-break';
+                page.style.cssText = 'padding: 8mm; background: white; width: 270mm; min-height: 185mm; position: relative; font-family: sans-serif;';
                 
                 page.innerHTML = `
-                    <div style="border-bottom: 4px solid #E30613; padding-bottom: 4mm; margin-bottom: 6mm; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="border-bottom: 3px solid #E30613; padding-bottom: 4mm; margin-bottom: 6mm; display: flex; justify-content: space-between; align-items: center;">
                         <div>
-                            <h1 style="margin: 0; font-size: 22pt; font-weight: 900; color: #E30613;">COSTA BRASIL</h1>
-                            <p style="margin: 0; font-size: 8pt; font-weight: bold; color: #64748b; letter-spacing: 1px;">RELATÓRIO TÉCNICO DE FROTA 2025</p>
+                            <h1 style="margin: 0; font-size: 20pt; font-weight: 900; color: #E30613;">COSTA BRASIL</h1>
+                            <p style="margin: 0; font-size: 8pt; font-weight: bold; color: #64748b;">RELATÓRIO DE FROTA 2025</p>
                         </div>
                         <div style="text-align: right;">
-                            <span style="font-size: 28pt; font-weight: 900; line-height: 1; color: #0f172a;">ID: ${truck.id}</span>
-                            <div style="font-size: 10pt; font-weight: 800; color: #64748b; text-transform: uppercase;">UNIDADE: ${unit}</div>
+                            <span style="font-size: 24pt; font-weight: 900; line-height: 1; color: #0f172a;">ID: ${truck.id}</span>
+                            <div style="font-size: 9pt; font-weight: 800; color: #64748b; text-transform: uppercase;">UNIDADE: ${unit}</div>
                         </div>
                     </div>
 
-                    <div style="margin-bottom: 6mm; display: flex; gap: 4mm; flex-wrap: wrap;">
-                        ${truck.transfer ? `<div style="background: #E30613; color: white; padding: 1.5mm 4mm; border-radius: 4px; font-size: 8pt; font-weight: 900; text-transform: uppercase;">${truck.transfer}</div>` : ''}
-                        ${truck.notes ? `<div style="background: #0f172a; color: white; padding: 1.5mm 4mm; border-radius: 4px; font-size: 8pt; font-weight: 900; text-transform: uppercase;">${truck.notes}</div>` : ''}
-                    </div>
-
-                    <div style="display: flex; gap: 4mm; justify-content: space-between; align-items: stretch;">
+                    <div style="display: flex; gap: 3mm; justify-content: space-between;">
                         ${[0, 1, 2].map(i => {
                             const cycleFolder = FOLDER_MAP.cycles[i];
                             const unitFolder = FOLDER_MAP.units[unit];
                             const isActive = truck.active[i];
                             return `
-                            <div style="flex: 1; border: 1.5px solid ${isActive ? '#e2e8f0' : '#f1f5f9'}; border-radius: 10px; padding: 3mm; background: ${isActive ? '#ffffff' : '#fcfcfc'}; opacity: ${isActive ? '1' : '0.2'};">
-                                <div style="font-size: 10pt; font-weight: 900; color: #E30613; border-bottom: 1px solid #f1f5f9; padding-bottom: 1.5mm; margin-bottom: 3mm; display: flex; justify-content: space-between; align-items: center;">
-                                    <span>${cycleInfo[i].label}</span>
-                                    <span style="font-size: 7pt; color: #94a3b8; font-weight: bold;">${truck.months[i] || 'PENDENTE'}</span>
+                            <div style="flex: 1; border: 1px solid #e2e8f0; border-radius: 8px; padding: 2mm; opacity: ${isActive ? '1' : '0.1'};">
+                                <div style="font-size: 9pt; font-weight: 900; color: #E30613; border-bottom: 1px solid #f1f5f9; padding-bottom: 1mm; margin-bottom: 2mm;">
+                                    ${cycleInfo[i].label}
                                 </div>
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2.5mm;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2mm;">
                                     ${[1, 2, 3, 4].map(s => `
-                                        <div style="aspect-ratio: 4/3; background: #f8fafc; border-radius: 6px; overflow: hidden; border: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: center;">
+                                        <div style="aspect-ratio: 4/3; background: #f8fafc; border-radius: 4px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
                                             <img src="${cycleFolder}/${unitFolder}/${truck.id}/slot${s}.jpg" style="max-width: 100%; max-height: 100%; object-fit: contain;" onerror="this.style.display='none'">
                                         </div>
                                     `).join('')}
@@ -511,24 +508,19 @@
                             </div>`;
                         }).join('')}
                     </div>
-
-                    <div style="position: absolute; bottom: 8mm; left: 8mm; right: 8mm; border-top: 1px solid #f1f5f9; padding-top: 3mm; font-size: 7pt; color: #cbd5e1; text-align: center; font-weight: 800;">
-                        CB DISTRIBUIDORA DE BEBIDAS - EMITIDO EM ${new Date().toLocaleDateString()} | VEÍCULO ${idx + 1} DE ${checkboxes.length}
-                    </div>
                 `;
                 masterContainer.appendChild(page);
             }
 
             const opt = {
                 margin: 0,
-                filename: `Relatorio_Imagens_Frota_${unit}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, logging: false },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+                filename: `Frota_2025_${unit}.pdf`,
+                image: { type: 'jpeg', quality: 0.95 },
+                html2canvas: { scale: 1.5, useCORS: true, logging: false },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape', compress: true }
             };
 
             await html2pdf().set(opt).from(masterContainer).save();
-
             btn.innerHTML = originalContent;
             lucide.createIcons();
             toggleMenu();
@@ -566,7 +558,7 @@
                 .filter(t => t.id.includes(searchTerm))
                 .sort((a, b) => parseInt(a.id) - parseInt(b.id));
             
-            const truck = list[currentIndex] || { id: "---", months: [null, null, null], active: [false, false, false] };
+            const truck = list[currentIndex] || list[0] || { id: "---", months: [null, null, null], active: [false, false, false] };
             
             const animatedContent = document.getElementById('animated-content');
             animatedContent.classList.remove('slide-up-active');
@@ -589,9 +581,8 @@
             document.getElementById('total-counter').innerText = `${list.length} veículos`;
             const truckList = document.getElementById('truck-list');
             truckList.innerHTML = list.map((t, i) => `
-                <button onclick="setStep(${i})" class="w-full group flex flex-col items-center p-2.5 rounded-xl transition-all duration-200 ${currentIndex === i ? 'bg-[#E30613] text-white shadow-lg scale-105' : 'hover:bg-white text-slate-400'}">
+                <button onclick="setStep(${i})" class="w-full group flex flex-col items-center p-2.5 rounded-xl transition-all duration-200 ${truck.id === t.id ? 'bg-[#E30613] text-white shadow-lg scale-105' : 'hover:bg-white text-slate-400'}">
                     <span class="text-[11px] font-black">${t.id}</span>
-                    ${(t.transfer || t.notes) && currentIndex !== i ? '<div class="w-1 h-1 rounded-full bg-amber-400 mt-1 border border-white"></div>' : ''}
                 </button>
             `).join('');
 
@@ -606,7 +597,7 @@
             
             const notesContainer = document.getElementById('notes-container');
             notesContainer.innerHTML = '';
-            if(truck.transfer) notesContainer.innerHTML += `<div class="bg-red-600 text-white px-4 py-0.5 rounded shadow-sm text-[10px] font-black uppercase flex items-center gap-1 animate-fade"><i data-lucide="arrow-right-left" class="w-2.5 h-2.5 text-white"></i> ${truck.transfer}</div>`;
+            if(truck.transfer) notesContainer.innerHTML += `<div class="bg-red-600 text-white px-4 py-0.5 rounded shadow-sm text-[10px] font-black uppercase flex items-center gap-1"><i data-lucide="arrow-right-left" class="w-2.5 h-2.5 text-white"></i> ${truck.transfer}</div>`;
             if(truck.notes) notesContainer.innerHTML += `<div class="bg-slate-900 text-white px-4 py-0.5 rounded text-[10px] font-black uppercase flex items-center gap-1 shadow-sm"><i data-lucide="wrench" class="w-2.5 h-2.5 text-[#E30613]"></i> ${truck.notes}</div>`;
 
             const grid = document.getElementById('cycles-grid');
@@ -672,27 +663,29 @@
             if(currentIndex < list.length - 1) { currentIndex++; render(); } 
         };
 
+        // MELHORIA: Pesquisa que preserva o veículo ao apagar
         document.getElementById('search-input').oninput = (e) => {
             const val = e.target.value.trim();
+            const currentIdBeforeSearch = fleetData[activeUnit][currentIndex]?.id;
+
             searchTerm = val;
+
             if (val.length >= 2) {
                 for (const unit in fleetData) {
                     const foundIndex = fleetData[unit].findIndex(t => t.id === val);
                     if (foundIndex !== -1) {
-                        if (activeUnit !== unit) {
-                            activeUnit = unit;
-                            currentIndex = foundIndex;
-                            render(true);
-                            return;
-                        } else {
-                            currentIndex = foundIndex;
-                            render();
-                            return;
-                        }
+                        activeUnit = unit;
+                        currentIndex = foundIndex;
+                        render();
+                        return;
                     }
                 }
+            } else if (val.length === 0) {
+                // Ao apagar a pesquisa, localiza o veículo que estava sendo visto na lista completa
+                const fullList = fleetData[activeUnit].sort((a,b) => parseInt(a.id) - parseInt(b.id));
+                const recoverIndex = fullList.findIndex(t => t.id === currentIdBeforeSearch);
+                if (recoverIndex !== -1) currentIndex = recoverIndex;
             }
-            currentIndex = 0;
             render();
         };
 
