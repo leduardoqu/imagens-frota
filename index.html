@@ -67,10 +67,9 @@
             height: calc(100vh - 60px) !important;
         }
 
-        /* Melhoria: Esconder ícone enquanto carrega e remover bordas de erro do navegador */
-        .img-placeholder-icon { opacity: 0.2; transition: opacity 0.3s; }
-        .show-error-icon .img-placeholder-icon { opacity: 1; color: #cbd5e1; }
-        img:not([src]) { visibility: hidden; } /* Remove o ícone de "quebrado" do navegador */
+        /* Melhoria: Esconder ícone enquanto carrega */
+        .img-placeholder-icon { opacity: 0; transition: opacity 0.3s; }
+        .show-error-icon .img-placeholder-icon { opacity: 1; }
 
         /* Menu Lateral de Opções */
         #options-menu {
@@ -296,11 +295,11 @@
                 { id: "268", active: [true, true, true], months: ["MAIO", "SETEMBRO", "DEZEMBRO"] },
                 { id: "269", active: [true, true, true], months: ["MAIO", "AGOSTO", "NOVEMBRO"], transfer: "RECEBIDO DE BARREIRAS EM MAIO" },
                 { id: "282", active: [true, true, true], months: ["MAIO", "AGOSTO", "NOVEMBRO"] },
-                { id: "325", active: [false, false, true], months: [null, null, "NOVEMBRO"], transfer: "VEÍCULO NOVO", notes: "DATA DE CHEGADA: " },
-                { id: "326", active: [false, false, true], months: [null, null, "NOVEMBRO"], transfer: "VEÍCULO NOVO", notes: "DATA DE CHEGADA: " },
-                { id: "327", active: [false, false, true], months: [null, null, "NOVEMBRO"], transfer: "VEÍCULO NOVO", notes: "DATA DE CHEGADA: " },
-                { id: "328", active: [false, false, true], months: [null, null, "NOVEMBRO"], transfer: "VEÍCULO NOVO", notes: "DATA DE CHEGADA: " },
-                { id: "329", active: [false, false, true], months: [null, null, "DEZEMBRO"], transfer: "VEÍCULO NOVO", notes: "DATA DE CHEGADA: " }
+                { id: "325", active: [false, false, true], months: [null, null, "NOVEMBRO"] },
+                { id: "326", active: [false, false, true], months: [null, null, "NOVEMBRO"] },
+                { id: "327", active: [false, false, true], months: [null, null, "NOVEMBRO"] },
+                { id: "328", active: [false, false, true], months: [null, null, "NOVEMBRO"] },
+                { id: "329", active: [false, false, true], months: [null, null, "DEZEMBRO"] }
             ],
             "BARREIRAS": [
                 { id: "120", active: [true, true, true], months: ["MAIO", "SETEMBRO", "DEZEMBRO"] },
@@ -392,10 +391,10 @@
                 { id: "308", active: [false, true, true], months: [null, "AGOSTO", "DEZEMBRO"] },
                 { id: "309", active: [false, false, true], months: [null, null, "DEZEMBRO"], notes: "NOVO" },
                 { id: "310", active: [false, true, true], months: [null, "SETEMBRO", "DEZEMBRO"] },
-                { id: "311", active: [false, false, true], months: [null, null, "DEZEMBRO"], transfer: "VEÍCULO NOVO", notes: "DATA DE CHEGADA: " },
-                { id: "312", active: [false, false, true], months: [null, null, "DEZEMBRO"], transfer: "VEÍCULO NOVO", notes: "DATA DE CHEGADA: " },
-                { id: "313", active: [false, false, true], months: [null, null, "DEZEMBRO"], transfer: "VEÍCULO NOVO", notes: "DATA DE CHEGADA: " },
-                { id: "314", active: [false, false, true], months: [null, null, "DEZEMBRO"], transfer: "VEÍCULO NOVO", notes: "DATA DE CHEGADA: " }
+                { id: "311", active: [false, false, true], months: [null, null, "DEZEMBRO"] },
+                { id: "312", active: [false, false, true], months: [null, null, "DEZEMBRO"] },
+                { id: "313", active: [false, false, true], months: [null, null, "DEZEMBRO"] },
+                { id: "314", active: [false, false, true], months: [null, null, "DEZEMBRO"] }
             ],
         };
 
@@ -415,10 +414,11 @@
             img.classList.add('opacity-100');
         }
 
-        // MELHORIA: Limpar Placeholder removendo o src quebrado
+        // CORREÇÃO PLACEHOLDER: Remove completamente a imagem quebrada
         function handleImgError(img) {
-            img.removeAttribute('src'); // Evita o ícone de arquivo quebrado do navegador
-            img.style.display = 'none';
+            img.style.opacity = '0';
+            img.style.objectPosition = '-9999px'; // Move a imagem para fora da vista
+            img.removeAttribute('src'); // Força a remoção para o navegador não tentar renderizar o alt/box
             const container = img.closest('.image-slot');
             if (container) {
                 container.classList.add('show-error-icon');
@@ -456,7 +456,7 @@
             document.querySelectorAll('.pdf-checkbox').forEach(cb => cb.checked = state);
         }
 
-        // MELHORIA: PDF Otimizado para velocidade
+        // CORREÇÃO: VELOCIDADE DE DOWNLOAD OTIMIZADA
         async function downloadCombinedPDF() {
             const unit = document.getElementById('pdf-unit-filter').value;
             const checkboxes = document.querySelectorAll('.pdf-checkbox:checked');
@@ -468,39 +468,40 @@
             lucide.createIcons();
 
             const masterContainer = document.createElement('div');
-            masterContainer.style.width = "280mm";
+            masterContainer.style.width = "280mm"; // Fixar largura para evitar reflow no render
 
             for (let idx = 0; idx < checkboxes.length; idx++) {
                 const truck = fleetData[unit].find(t => t.id === checkboxes[idx].value);
                 const page = document.createElement('div');
-                page.className = 'pdf-page-break';
-                page.style.cssText = 'padding: 8mm; background: white; width: 270mm; min-height: 185mm; position: relative; font-family: sans-serif;';
+                if (idx < checkboxes.length - 1) page.className = 'pdf-page-break';
+                page.style.cssText = 'padding: 8mm; background: white; width: 270mm; min-height: 185mm; position: relative; font-family: sans-serif; box-sizing: border-box;';
                 
                 page.innerHTML = `
-                    <div style="border-bottom: 3px solid #E30613; padding-bottom: 4mm; margin-bottom: 6mm; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="border-bottom: 4px solid #E30613; padding-bottom: 4mm; margin-bottom: 6mm; display: flex; justify-content: space-between; align-items: center;">
                         <div>
-                            <h1 style="margin: 0; font-size: 20pt; font-weight: 900; color: #E30613;">COSTA BRASIL</h1>
-                            <p style="margin: 0; font-size: 8pt; font-weight: bold; color: #64748b;">RELATÓRIO DE FROTA 2025</p>
+                            <h1 style="margin: 0; font-size: 22pt; font-weight: 900; color: #E30613;">COSTA BRASIL</h1>
+                            <p style="margin: 0; font-size: 8pt; font-weight: bold; color: #64748b; letter-spacing: 1px;">RELATÓRIO TÉCNICO DE FROTA 2025</p>
                         </div>
                         <div style="text-align: right;">
-                            <span style="font-size: 24pt; font-weight: 900; line-height: 1; color: #0f172a;">ID: ${truck.id}</span>
-                            <div style="font-size: 9pt; font-weight: 800; color: #64748b; text-transform: uppercase;">UNIDADE: ${unit}</div>
+                            <span style="font-size: 28pt; font-weight: 900; line-height: 1; color: #0f172a;">ID: ${truck.id}</span>
+                            <div style="font-size: 10pt; font-weight: 800; color: #64748b; text-transform: uppercase;">UNIDADE: ${unit}</div>
                         </div>
                     </div>
 
-                    <div style="display: flex; gap: 3mm; justify-content: space-between;">
+                    <div style="display: flex; gap: 4mm; justify-content: space-between; align-items: stretch;">
                         ${[0, 1, 2].map(i => {
                             const cycleFolder = FOLDER_MAP.cycles[i];
                             const unitFolder = FOLDER_MAP.units[unit];
                             const isActive = truck.active[i];
                             return `
-                            <div style="flex: 1; border: 1px solid #e2e8f0; border-radius: 8px; padding: 2mm; opacity: ${isActive ? '1' : '0.1'};">
-                                <div style="font-size: 9pt; font-weight: 900; color: #E30613; border-bottom: 1px solid #f1f5f9; padding-bottom: 1mm; margin-bottom: 2mm;">
-                                    ${cycleInfo[i].label}
+                            <div style="flex: 1; border: 1.5px solid ${isActive ? '#e2e8f0' : '#f1f5f9'}; border-radius: 10px; padding: 3mm; background: ${isActive ? '#ffffff' : '#fcfcfc'}; opacity: ${isActive ? '1' : '0.2'};">
+                                <div style="font-size: 10pt; font-weight: 900; color: #E30613; border-bottom: 1px solid #f1f5f9; padding-bottom: 1.5mm; margin-bottom: 3mm; display: flex; justify-content: space-between; align-items: center;">
+                                    <span>${cycleInfo[i].label}</span>
+                                    <span style="font-size: 7pt; color: #94a3b8; font-weight: bold;">${truck.months[i] || 'PENDENTE'}</span>
                                 </div>
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2mm;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2.5mm;">
                                     ${[1, 2, 3, 4].map(s => `
-                                        <div style="aspect-ratio: 4/3; background: #f8fafc; border-radius: 4px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                                        <div style="aspect-ratio: 4/3; background: #f8fafc; border-radius: 6px; overflow: hidden; border: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: center;">
                                             <img src="${cycleFolder}/${unitFolder}/${truck.id}/slot${s}.jpg" style="max-width: 100%; max-height: 100%; object-fit: contain;" onerror="this.style.display='none'">
                                         </div>
                                     `).join('')}
@@ -514,13 +515,19 @@
 
             const opt = {
                 margin: 0,
-                filename: `Frota_2025_${unit}.pdf`,
-                image: { type: 'jpeg', quality: 0.95 },
-                html2canvas: { scale: 1.5, useCORS: true, logging: false },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape', compress: true }
+                filename: `Imagens_Frota_2025_${unit}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { 
+                    scale: 1.5, // Reduzido de 2 para 1.5 para aumentar velocidade sem perder legibilidade
+                    useCORS: true, 
+                    logging: false,
+                    removeContainer: true // Acelera o processamento
+                },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape', compress: true } // Ativado compressão nativa
             };
 
             await html2pdf().set(opt).from(masterContainer).save();
+
             btn.innerHTML = originalContent;
             lucide.createIcons();
             toggleMenu();
@@ -554,10 +561,12 @@
 
         // --- LÓGICA DE RENDERIZAÇÃO ---
         function render(isUnitJump = false) {
+            // Filtrar a lista baseada no termo de pesquisa
             const list = fleetData[activeUnit]
                 .filter(t => t.id.includes(searchTerm))
                 .sort((a, b) => parseInt(a.id) - parseInt(b.id));
             
+            // Garantir que selecionamos o item correto da lista filtrada
             const truck = list[currentIndex] || list[0] || { id: "---", months: [null, null, null], active: [false, false, false] };
             
             const animatedContent = document.getElementById('animated-content');
@@ -663,13 +672,14 @@
             if(currentIndex < list.length - 1) { currentIndex++; render(); } 
         };
 
-        // MELHORIA: Pesquisa que preserva o veículo ao apagar
+        // CORREÇÃO: PESQUISA INTELIGENTE (Preserva o veículo selecionado ao apagar)
         document.getElementById('search-input').oninput = (e) => {
             const val = e.target.value.trim();
-            const currentIdBeforeSearch = fleetData[activeUnit][currentIndex]?.id;
+            const currentSelectedId = document.getElementById('current-id').innerText;
 
             searchTerm = val;
 
+            // Tenta encontrar o veículo pesquisado
             if (val.length >= 2) {
                 for (const unit in fleetData) {
                     const foundIndex = fleetData[unit].findIndex(t => t.id === val);
@@ -680,12 +690,22 @@
                         return;
                     }
                 }
-            } else if (val.length === 0) {
-                // Ao apagar a pesquisa, localiza o veículo que estava sendo visto na lista completa
-                const fullList = fleetData[activeUnit].sort((a,b) => parseInt(a.id) - parseInt(b.id));
-                const recoverIndex = fullList.findIndex(t => t.id === currentIdBeforeSearch);
-                if (recoverIndex !== -1) currentIndex = recoverIndex;
+            } 
+            
+            // Caso apague a pesquisa ou não encontre o que digitou
+            // Localizamos onde o veículo atual (que está na tela) está na lista filtrada/completa
+            const currentList = fleetData[activeUnit]
+                .filter(t => t.id.includes(searchTerm))
+                .sort((a, b) => parseInt(a.id) - parseInt(b.id));
+
+            const newIndex = currentList.findIndex(t => t.id === currentSelectedId);
+            
+            if (newIndex !== -1) {
+                currentIndex = newIndex;
+            } else {
+                currentIndex = 0;
             }
+
             render();
         };
 
