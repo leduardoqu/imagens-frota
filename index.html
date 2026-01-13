@@ -67,15 +67,19 @@
             height: calc(100vh - 60px) !important;
         }
 
-        /* Melhoria: Controle dos Placeholders */
-        .img-placeholder-icon { opacity: 0.2; transition: opacity 0.3s; }
-        .show-error-icon .img-placeholder-icon { opacity: 1; color: #cbd5e1; }
+        /* Melhoria: Controle dos Placeholders - MODIFICADO PARA FICAR INVISÍVEL */
+        .img-placeholder-icon { opacity: 0; transition: opacity 0.3s; }
+        .show-error-icon .img-placeholder-icon { opacity: 0; color: transparent; }
         
-        /* REMOVE O ÍCONE DE IMAGEM QUEBRADA DO NAVEGADOR */
-        img:not([src]), img[src=""] { 
+        /* Remove qualquer ícone de erro ou carregamento nativo do navegador */
+        img:not([src]), 
+        img[src=""], 
+        img[style*="display: none"] {
             opacity: 0 !important;
             visibility: hidden !important;
-        }
+            width: 0 !important;
+            height: 0 !important;
+}
 
         /* Menu Lateral de Opções */
         #options-menu {
@@ -418,6 +422,23 @@
         function handleImgLoad(img) {
             img.classList.remove('opacity-0');
             img.classList.add('opacity-100');
+        }
+
+        function handleImgError(img) {
+         // Esconde a tag <img> completamente
+         img.style.display = 'none';
+    
+         // Remove o atributo src para limpar o cache de erro do navegador
+         img.removeAttribute('src'); 
+    
+          // MODIFICADO: Remove fundo e borda se não houver imagem
+          const container = img.closest('.image-slot');
+          if (container) {
+              container.classList.add('show-error-icon');
+              container.style.backgroundColor = "transparent";
+              container.style.border = "none";
+              container.style.boxShadow = "none";
+           }
         }
 
         // FUNÇÃO ZOOM
