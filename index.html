@@ -1,108 +1,84 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CB - Imagens Frota 2025</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         .custom-scrollbar::-webkit-scrollbar { width: 3px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #E30613; border-radius: 10px; }
         body { font-family: 'Inter', sans-serif; overflow: hidden; background: #FFFFFF; }
-        
-        /* Animação suave de entrada (vinda de baixo) */
-        .slide-up-active {
-            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
+        .slide-up-active { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         .unit-jump-glow { animation: glow 1.5s ease-out; }
         @keyframes glow { 0% { background-color: rgba(227, 6, 19, 0.2); } 100% { background-color: transparent; } }
-        
-        /* Ajuste para modo Fullscreen */
         :fullscreen body { background-color: #F8FAFC; }
         :-webkit-full-screen body { background-color: #F8FAFC; }
-
-        /* Estilo para Lightbox (Tela Cheia) */
-        #lightbox-modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.9);
-            z-index: 100;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(10px);
-            cursor: zoom-out;
-        }
-
-        /* --- ESTILOS PARA O MODO COMPARAÇÃO --- */
-        .comparison-active aside, 
-        .comparison-active header, 
-        .comparison-active footer,
-        .comparison-active #current-unit-label,
-        .comparison-active .nav-controls-container,
-        .comparison-active #btn-open-menu {
-            display: none !important;
-        }
-
+        #lightbox-modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.9); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(10px); cursor: zoom-out; }
+        .comparison-active aside, .comparison-active header, .comparison-active footer, .comparison-active #current-unit-label, .comparison-active .nav-controls-container, .comparison-active #btn-open-menu { display: none !important; }
         .comparison-active #main-display { padding: 10px !important; }
         .comparison-active #current-id { font-size: 3rem !important; opacity: 0.3; margin-bottom: 0 !important; line-height: 1; }
         .comparison-active .header-info-wrapper { border-bottom: none !important; margin-bottom: 5px !important; }
-        
-        .comparison-active #cycles-grid {
-            gap: 10px !important;
-            height: calc(100vh - 60px) !important;
-        }
-
-        /* Melhoria: Controle dos Placeholders - Mantendo invisível como pedido anteriormente */
+        .comparison-active #cycles-grid { gap: 10px !important; height: calc(100vh - 60px) !important; }
         .img-placeholder-icon { opacity: 0; transition: opacity 0.3s; }
         .show-error-icon .img-placeholder-icon { opacity: 0; color: transparent; }
-        
-        /* Remove qualquer ícone de erro ou carregamento nativo do navegador */
-        img:not([src]), 
-        img[src=""], 
-        img[style*="display: none"] {
-            opacity: 0 !important;
-            visibility: hidden !important;
-            width: 0 !important;
-            height: 0 !important;
-}
-
-        /* Menu Lateral de Opções */
-        #options-menu {
-            transform: translateX(100%);
-            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            z-index: 60;
-        }
+        img:not([src]), img[src=""], img[style*="display: none"] { opacity: 0 !important; visibility: hidden !important; width: 0 !important; height: 0 !important; }
+        #options-menu { transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); z-index: 60; }
         #options-menu.open { transform: translateX(0); }
-
-        /* Classe para forçar quebra de página no PDF */
         .pdf-page-break { page-break-after: always !important; }
 
-        /* Animação do Spinner */
-        @keyframes pdf-spin { to { transform: rotate(360deg); } }
+        #global-progress-container {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 35px;
+            background: #000000;
+            z-index: 10000;
+            padding: 0 20px;
+            align-items: center;
+            border-top: 1px solid #E30613;
+        }
+        #progress-track {
+            flex: 1;
+            height: 3px;
+            background: rgba(227, 6, 19, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 0 15px;
+        }
+        #global-progress-bar { width: 0%; height: 100%; background: #E30613; transition: width 0.4s ease; }
+        #global-progress-text { color: white; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+        #progress-percent-text { color: #E30613; font-size: 10px; font-weight: 900; min-width: 40px; text-align: right; margin-right: 15px; }
     </style>
 </head>
+
 <body class="bg-[#F8FAFC] text-slate-900 h-screen flex flex-col">
+
+    <div id="global-progress-container">
+        <div id="global-progress-text" class="flex items-center gap-2">
+            <i data-lucide="refresh-cw" class="w-3 h-3 text-[#E30613] animate-spin"></i>
+            <span>GERANDO PDF</span>
+        </div>
+        <div id="progress-track">
+            <div id="global-progress-bar"></div>
+        </div>
+        <div id="progress-percent-text">0%</div>
+        <button onclick="cancelPDFGeneration()" class="bg-red-600/20 hover:bg-red-600 text-red-500 hover:text-white text-[8px] font-black px-3 py-1 rounded border border-red-600/50 transition-all uppercase italic">
+            Cancelar
+        </button>
+    </div>
 
     <div id="lightbox-modal" onclick="this.style.display='none'">
         <img id="lightbox-img" src="" class="max-w-[95%] max-h-[95%] object-contain rounded-lg shadow-2xl">
     </div>
 
-    <button id="btn-open-menu" onclick="toggleMenu()" class="fixed bottom-6 right-6 z-50 bg-slate-900 text-white p-2.5 rounded-full shadow-xl hover:bg-[#E30613] transition-all scale-90 hover:scale-100">
+    <button id="btn-open-menu" onclick="toggleMenu()" class="fixed bottom-12 right-6 z-50 bg-slate-900 text-white p-2.5 rounded-full shadow-xl hover:bg-[#E30613] transition-all scale-90 hover:scale-100">
         <i data-lucide="menu" class="w-4 h-4"></i>
     </button>
 
@@ -111,11 +87,12 @@
             <h2 class="font-black text-[10px] uppercase tracking-widest text-slate-900">GERAR PDF</h2>
             <button onclick="toggleMenu()" class="text-slate-400 hover:text-red-600"><i data-lucide="x" class="w-5 h-5"></i></button>
         </div>
-        
+
         <div class="p-6 flex-1 overflow-y-auto custom-scrollbar space-y-8">
             <div>
                 <label class="text-[9px] font-black text-slate-400 uppercase mb-3 block italic">1. Selecionar Unidade</label>
                 <select id="pdf-unit-filter" onchange="updatePDFList()" class="w-full p-2.5 bg-slate-100 border-none rounded-lg text-xs font-bold outline-none focus:ring-2 focus:ring-[#E30613]/20">
+                    <option value="TODAS AS UNIDADES">TODAS AS UNIDADES</option>
                     <option value="CB NORTE">CB NORTE</option>
                     <option value="CB SUL">CB SUL</option>
                     <option value="BARREIRAS">BARREIRAS</option>
@@ -134,7 +111,7 @@
                     </div>
                 </div>
                 <div id="pdf-truck-selection" class="space-y-1 max-h-80 overflow-y-auto pr-2 custom-scrollbar border rounded-lg p-2 bg-slate-50/50">
-                    </div>
+                </div>
             </div>
         </div>
 
@@ -142,7 +119,6 @@
             <button id="btn-generate-pdf" onclick="downloadCombinedPDF()" class="w-full bg-[#E30613] text-white py-4 rounded-xl font-black text-[9px] uppercase tracking-[0.2em] shadow-lg hover:bg-red-700 transition-all flex items-center justify-center gap-3">
                 <i data-lucide="layers" class="w-4 h-4"></i> Gerar arquivo
             </button>
-            <p class="text-center text-[7px] text-slate-400 mt-3 font-bold uppercase italic tracking-tighter">O download é gerado automaticamente, aguarde um instante.</p>
         </div>
     </aside>
 
@@ -153,24 +129,17 @@
             </div>
             <h1 class="text-[9px] sm:text-xs font-black uppercase tracking-widest text-white leading-none">CB DISTRIBUIDORA DE BEBIDAS</h1>
         </div>
-
-        <div id="unit-selector" class="hidden md:flex bg-black/10 p-1 rounded-lg gap-0.5 font-black text-[9px] tracking-tighter uppercase text-white">
-            </div>
-
+        <div id="unit-selector" class="hidden md:flex bg-black/10 p-1 rounded-lg gap-0.5 font-black text-[9px] tracking-tighter uppercase text-white"></div>
         <div class="flex items-center gap-4">
             <button id="btn-comparison" onclick="toggleComparison()" class="hidden flex items-center gap-2 bg-white/20 hover:bg-white text-white hover:text-[#E30613] px-3 py-1 rounded-md transition-all text-[10px] font-black uppercase">
-                <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
-                Comparar Ciclos
+                <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i> Comparar Ciclos
             </button>
-
             <button onclick="toggleFullscreen()" class="p-1.5 hover:bg-white/10 rounded-md transition-all text-white/70 hover:text-white" title="Tela Cheia (F11)">
                 <i data-lucide="maximize" class="w-4 h-4 text-white"></i>
             </button>
-            
             <div class="relative w-48 text-white">
                 <i data-lucide="search" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/40"></i>
-                <input type="text" id="search-input" placeholder="Pesquisar veículo" 
-                    class="w-full pl-8 pr-2 py-1 bg-white/10 border border-white/10 rounded-md text-[10px] text-white placeholder:text-white/30 focus:outline-none focus:bg-white/20 transition-all shadow-inner">
+                <input type="text" id="search-input" placeholder="Pesquisar veículo" class="w-full pl-8 pr-2 py-1 bg-white/10 border border-white/10 rounded-md text-[10px] text-white placeholder:text-white/30 focus:outline-none focus:bg-white/20 transition-all shadow-inner">
             </div>
         </div>
     </header>
@@ -181,14 +150,11 @@
                 <span class="text-[8px] font-black text-slate-400 uppercase leading-none tracking-tighter">LISTA VEÍCULOS</span>
                 <div id="total-counter" class="text-[10px] font-black text-[#E30613] mt-1 italic">-- veículos</div>
             </div>
-            <div id="truck-list" class="flex-1 overflow-y-auto custom-scrollbar p-1.5 space-y-1 bg-slate-50/30">
-                </div>
+            <div id="truck-list" class="flex-1 overflow-y-auto custom-scrollbar p-1.5 space-y-1 bg-slate-50/30"></div>
         </aside>
 
         <section id="main-display" class="flex-1 flex flex-col p-4 bg-white overflow-hidden relative">
-            
             <div id="animated-content" class="flex-1 flex flex-col slide-up-active overflow-hidden">
-                
                 <div class="header-info-wrapper flex justify-between items-center mb-3 border-b pb-3 border-slate-100 relative z-10 shrink-0">
                     <div class="flex flex-col">
                         <div class="flex items-center gap-2 text-[#E30613] font-black text-[8px] tracking-[0.3em] mb-1 italic leading-none">
@@ -205,7 +171,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="nav-controls-container flex items-center gap-4 bg-slate-50 p-1.5 rounded-xl border border-slate-200 shadow-sm">
                         <div class="flex flex-col items-end pr-3 border-r border-slate-200 text-right">
                             <span class="text-[7px] font-black text-slate-300 uppercase block tracking-tighter leading-none mb-0.5">Veículo</span>
@@ -217,11 +182,9 @@
                         </div>
                     </div>
                 </div>
-
-                <div id="cycles-grid" class="flex-1 grid grid-cols-3 gap-3 overflow-hidden min-h-0">
-                    </div>
-
-            </div> <footer class="mt-2 h-5 shrink-0 flex justify-between items-center border-t border-slate-100 pt-1">
+                <div id="cycles-grid" class="flex-1 grid grid-cols-3 gap-3 overflow-hidden min-h-0"></div>
+            </div>
+            <footer class="mt-2 h-5 shrink-0 flex justify-between items-center border-t border-slate-100 pt-1">
                 <div id="pagination-dots" class="flex gap-1"></div>
                 <span class="text-[10px] font-black text-slate-300 uppercase tracking-[0.4em] italic leading-none">CB Distribuidora de Bebidas</span>
             </footer>
@@ -229,23 +192,14 @@
     </main>
 
     <script>
-        // --- MAPEAMENTO DE PASTAS PARA BUSCA AUTOMÁTICA ---
         const FOLDER_MAP = {
             cycles: ["primeiro_ciclo", "segundo_ciclo", "terceiro_ciclo"],
-            units: {
-                "CB NORTE": "norte",
-                "CB SUL": "sul",
-                "BARREIRAS": "barreiras",
-                "JUAZEIRO": "juazeiro",
-                "OT": "ot",
-                "OBSERVAÇÕES": "norte"
-            }
+            units: { "CB NORTE": "norte", "CB SUL": "sul", "BARREIRAS": "barreiras", "JUAZEIRO": "juazeiro", "OT": "ot" }
         };
 
-        // --- BASE DE DADOS COMPLETA ---
-         const fleetData = {
+        const fleetData = {
             "CB NORTE": [
-                { id: "155", active: [true, false, false], months: ["JUNHO", "AGOSTO", "NOVEMBRO"], transfer: "TRANSFERIDO PARA CB SUL EM JUNHO", notes: "IMAGENS TIRADAS NA CB SUL EM JUNHO"},
+                { id: "155", active: [true, false, false], months: ["JUNHO", "AGOSTO", "NOVEMBRO"], transfer: "TRANSFERIDO PARA CB SUL EM JUNHO", notes: "IMAGENS TIRADAS NA CB SUL EM JUNHO" },
                 { id: "158", active: [true, true, true], months: ["JUNHO", "SETEMBRO", "OUTUBRO"] },
                 { id: "159", active: [true, true, true], months: ["JUNHO", "SETEMBRO", "NOVEMBRO"] },
                 { id: "160", active: [true, true, true], months: ["JUNHO", "SETEMBRO", "OUTUBRO"] },
@@ -334,13 +288,13 @@
                 { id: "263", active: [true, true, true], months: ["JUNHO", "SETEMBRO", "OUTUBRO"] },
                 { id: "264", active: [true, true, true], months: ["JUNHO", "SETEMBRO", "OUTUBRO"] },
                 { id: "266", active: [true, true, true], months: ["MAIO", "SETEMBRO", "DEZEMBRO"] },
-                { id: "269", active: [true, false, false], months: ["MAIO", "AGOSTO", "NOVEMBRO"], transfer: "TRANSFERIDO PARA A CB SUL EM JUNHO", notes:"IMAGENS TIRADAS EM JUNHO NA CB SUL"},
+                { id: "269", active: [true, false, false], months: ["MAIO", "AGOSTO", "NOVEMBRO"], transfer: "TRANSFERIDO PARA A CB SUL EM JUNHO", notes: "IMAGENS TIRADAS EM JUNHO NA CB SUL" },
                 { id: "281", active: [true, true, true], months: ["MAIO", "SETEMBRO", "DEZEMBRO"] }
             ],
             "JUAZEIRO": [
                 { id: "121", active: [true, true, true], months: ["MAIO", "AGOSTO", "NOVEMBRO"] },
                 { id: "130", active: [true, true, true], months: ["MAIO", "AGOSTO", "OUTUBRO"] },
-                { id: "146", active: [true, true, true], months: ["JUNHO", "SETEMBRO", "DEZEMBRO"], transfer: "RECEBIDO NO 2º CICLO DA CB SUL", notes: "IMAGENS TIRADAS EM JUNHO NA CB SUL"},
+                { id: "146", active: [true, true, true], months: ["JUNHO", "SETEMBRO", "DEZEMBRO"], transfer: "RECEBIDO NO 2º CICLO DA CB SUL", notes: "IMAGENS TIRADAS EM JUNHO NA CB SUL" },
                 { id: "174", active: [false, true, true], months: [null, "SETEMBRO", "OUTUBRO"] },
                 { id: "184", active: [false, true, true], months: [null, "SETEMBRO", "OUTUBRO"] },
                 { id: "185", active: [true, true, true], months: ["JUNHO", "SETEMBRO", "OUTUBRO"] },
@@ -416,212 +370,224 @@
             { label: "3º CICLO", range: "Outubro - Dezembro" }
         ];
 
-        let activeUnit = "CB NORTE"; 
+        let activeUnit = "CB NORTE";
         let currentIndex = 0;
         let searchTerm = "";
+        let isPdfCancelled = false;
 
-        // FUNÇÃO CARREGAMENTO IMAGENS
-        function handleImgLoad(img) {
-            img.classList.remove('opacity-0');
-            img.classList.add('opacity-100');
-        }
-
+        function handleImgLoad(img) { img.classList.remove('opacity-0'); img.classList.add('opacity-100'); }
         function handleImgError(img) {
-         img.style.display = 'none';
-         img.removeAttribute('src'); 
-          const container = img.closest('.image-slot');
-          if (container) {
-              container.classList.add('show-error-icon');
-              container.style.backgroundColor = "transparent";
-              container.style.border = "none";
-              container.style.boxShadow = "none";
-           }
+            img.style.display = 'none';
+            img.removeAttribute('src');
+            const container = img.closest('.image-slot');
+            if (container) { container.classList.add('show-error-icon'); container.style.backgroundColor = "transparent"; container.style.border = "none"; }
         }
-
-        // FUNÇÃO ZOOM
-        function openZoom(src) {
-            if(!src) return;
-            document.getElementById('lightbox-img').src = src;
-            document.getElementById('lightbox-modal').style.display = 'flex';
-        }
-
-        /* --- LÓGICA DO MENU DE OPÇÕES --- */
-        function toggleMenu() {
-            const menu = document.getElementById('options-menu');
-            menu.classList.toggle('open');
-            if(menu.classList.contains('open')) updatePDFList();
-        }
+        function openZoom(src) { if (!src) return; document.getElementById('lightbox-img').src = src; document.getElementById('lightbox-modal').style.display = 'flex'; }
+        function toggleMenu() { const menu = document.getElementById('options-menu'); menu.classList.toggle('open'); if (menu.classList.contains('open')) updatePDFList(); }
 
         function updatePDFList() {
             const unit = document.getElementById('pdf-unit-filter').value;
             const container = document.getElementById('pdf-truck-selection');
-            const list = fleetData[unit].sort((a,b) => parseInt(a.id) - parseInt(b.id));
-            
+            let list = [];
+            if (unit === "TODAS AS UNIDADES") { Object.keys(fleetData).forEach(u => fleetData[u].forEach(t => list.push({ ...t, unit: u }))); }
+            else { list = fleetData[unit].map(t => ({ ...t, unit: unit })); }
+            list.sort((a, b) => parseInt(a.id) - parseInt(b.id));
             container.innerHTML = list.map(t => `
                 <label class="flex items-center gap-3 p-2 hover:bg-slate-100 rounded-lg cursor-pointer transition-all">
-                    <input type="checkbox" value="${t.id}" class="pdf-checkbox w-4 h-4 accent-[#E30613] rounded">
-                    <span class="text-[11px] font-black text-slate-700 tracking-tighter">${t.id}</span>
-                </label>
-            `).join('');
+                    <input type="checkbox" data-unit="${t.unit}" value="${t.id}" class="pdf-checkbox w-4 h-4 accent-[#E30613] rounded">
+                    <div class="flex flex-col">
+                        <span class="text-[11px] font-black text-slate-700 tracking-tighter">${t.id}</span>
+                        <span class="text-[7px] font-bold text-slate-400 uppercase tracking-tighter">${t.unit}</span>
+                    </div>
+                </label>`).join('');
         }
 
-        function selectAllTrucks(state) {
-            document.querySelectorAll('.pdf-checkbox').forEach(cb => cb.checked = state);
-        }
+        function selectAllTrucks(state) { document.querySelectorAll('.pdf-checkbox').forEach(cb => cb.checked = state); }
+        function cancelPDFGeneration() { isPdfCancelled = true; }
 
+        const getBase64FromUrl = async (url) => {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) return null;
+                const blob = await response.blob();
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.readAsDataURL(blob);
+                });
+            } catch (e) { return null; }
+        };
+
+        // LÓGICA DE DOWNLOAD PDF OTIMIZADA
         async function downloadCombinedPDF() {
-            const unit = document.getElementById('pdf-unit-filter').value;
-            const checkboxes = document.querySelectorAll('.pdf-checkbox:checked');
-            if(checkboxes.length === 0) return alert("Selecione os veículos.");
+            const { jsPDF } = window.jspdf;
+            const checkboxes = Array.from(document.querySelectorAll('.pdf-checkbox:checked'));
+            if (checkboxes.length === 0) return alert("Selecione ao menos um veículo.");
 
             const btn = document.getElementById('btn-generate-pdf');
-            const originalContent = btn.innerHTML;
-            btn.innerHTML = 'Gerando PDF...';
+            const progCont = document.getElementById('global-progress-container');
+            const progBar = document.getElementById('global-progress-bar');
+            const progTxt = document.getElementById('progress-percent-text');
 
-            const masterContainer = document.createElement('div');
-            masterContainer.style.width = "297mm"; 
-
-            for (let idx = 0; idx < checkboxes.length; idx++) {
-                const truck = fleetData[unit].find(t => t.id === checkboxes[idx].value);
-                const page = document.createElement('div');
-                if (idx < checkboxes.length - 1) page.className = 'pdf-page-break';
-                page.style.cssText = 'padding: 10mm; background: white; width: 277mm; min-height: 190mm; position: relative; font-family: sans-serif; box-sizing: border-box;';
-                
-                // RESTAURADO: Observações incluídas no PDF
-                let obsHtml = '';
-                if(truck.transfer) obsHtml += `<div style="background:#E30613; color:white; padding:2px 8px; border-radius:4px; font-size:8pt; font-weight:900; display:inline-block; margin-right:5px; text-transform:uppercase;">${truck.transfer}</div>`;
-                if(truck.notes) obsHtml += `<div style="background:#0f172a; color:white; padding:2px 8px; border-radius:4px; font-size:8pt; font-weight:900; display:inline-block; text-transform:uppercase;">${truck.notes}</div>`;
-
-                page.innerHTML = `
-                    <div style="border-bottom: 4px solid #E30613; padding-bottom: 4mm; margin-bottom: 6mm; display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <h1 style="margin: 0; font-size: 22pt; font-weight: 900; color: #E30613;">COSTA BRASIL</h1>
-                            <p style="margin: 0; font-size: 8pt; font-weight: bold; color: #64748b; letter-spacing: 1px;">RELATÓRIO TÉCNICO DE FROTA 2025</p>
-                            <div style="margin-top:5px;">${obsHtml}</div>
-                        </div>
-                        <div style="text-align: right;">
-                            <span style="font-size: 28pt; font-weight: 900; line-height: 1; color: #0f172a;">ID: ${truck.id}</span>
-                            <div style="font-size: 10pt; font-weight: 800; color: #64748b; text-transform: uppercase;">UNIDADE: ${unit}</div>
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 4mm; justify-content: space-between;">
-                        ${[0, 1, 2].map(i => {
-                            const isActive = truck.active[i];
-                            return `
-                            <div style="flex: 1; border: 1.5px solid ${isActive ? '#e2e8f0' : '#f1f5f9'}; border-radius: 10px; padding: 3mm; opacity: ${isActive ? '1' : '0.2'};">
-                                <div style="font-size: 10pt; font-weight: 900; color: #E30613; border-bottom: 1px solid #f1f5f9; padding-bottom: 1.5mm; margin-bottom: 3mm; display: flex; justify-content: space-between; align-items: center;">
-                                    <span>${cycleInfo[i].label}</span>
-                                    <span style="font-size: 7pt; color: #94a3b8; font-weight: bold;">${truck.months[i] || ''}</span>
-                                </div>
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2.5mm;">
-                                    ${[1, 2, 3, 4].map(s => `
-                                        <div style="aspect-ratio: 4/3; background: #f8fafc; border-radius: 6px; overflow: hidden; border: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: center;">
-                                            <img src="${FOLDER_MAP.cycles[i]}/${FOLDER_MAP.units[unit]}/${truck.id}/slot${s}.jpg" 
-                                                 style="max-width: 100%; max-height: 100%; object-fit: contain;" 
-                                                 crossorigin="anonymous">
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            </div>`;
-                        }).join('')}
-                    </div>`;
-                masterContainer.appendChild(page);
-            }
-
-            const opt = {
-                margin: 0,
-                filename: `Frota_2025_${unit}.pdf`,
-                image: { type: 'jpeg', quality: 0.95 },
-                html2canvas: { scale: 1.5, useCORS: true, logging: false },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape', compress: true }
-            };
-
-            await html2pdf().set(opt).from(masterContainer).save();
-            btn.innerHTML = originalContent;
+            isPdfCancelled = false;
+            btn.disabled = true;
+            progCont.style.display = 'flex';
             toggleMenu();
+
+            const unitOrder = ["CB NORTE", "CB SUL", "BARREIRAS", "JUAZEIRO", "OT"];
+            const groupedTrucks = {};
+            checkboxes.forEach(cb => {
+                const unit = cb.dataset.unit;
+                if (!groupedTrucks[unit]) groupedTrucks[unit] = [];
+                groupedTrucks[unit].push(cb.value);
+            });
+
+            const doc = new jsPDF({ orientation: 'l', unit: 'mm', format: 'a4', compress: true });
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+            let totalProcessed = 0;
+
+            for (const currentUnit of unitOrder) {
+                if (isPdfCancelled) break;
+                if (!groupedTrucks[currentUnit]) continue;
+
+                const truckIds = groupedTrucks[currentUnit].sort((a, b) => parseInt(a) - parseInt(b));
+
+                // Capa de Seção
+                if (totalProcessed > 0) doc.addPage();
+                doc.setFillColor(227, 6, 19);
+                doc.rect(0, 0, pageWidth, pageHeight, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(45);
+                doc.text(currentUnit, pageWidth / 2, pageHeight / 2 - 10, { align: 'center' });
+                doc.setFontSize(14);
+                doc.text(`RELATÓRIO TÉCNICO DE FROTA - 2025`, pageWidth / 2, pageHeight / 2 + 10, { align: 'center' });
+
+                for (let tIdx = 0; tIdx < truckIds.length; tIdx++) {
+                    if (isPdfCancelled) break;
+                    const truckId = truckIds[tIdx];
+                    const truck = fleetData[currentUnit].find(t => t.id === truckId);
+                    
+                    doc.addPage();
+                    totalProcessed++;
+                    const percent = Math.round((totalProcessed / checkboxes.length) * 100);
+                    progBar.style.width = percent + '%';
+                    progTxt.innerText = `${percent}%`;
+
+                    // Cabeçalho da página
+                    doc.setFillColor(227, 6, 19);
+                    doc.rect(0, 0, pageWidth, 15, 'F');
+                    doc.setTextColor(255, 255, 255);
+                    doc.setFontSize(10);
+                    doc.text(`CB DISTRIBUIDORA DE BEBIDAS | ${currentUnit}`, 10, 9.5);
+
+                    // Título ID (Igual site)
+                    doc.setTextColor(15, 23, 42);
+                    doc.setFontSize(38);
+                    doc.text(truck.id, 10, 42);
+                    doc.setFontSize(9);
+                    doc.setTextColor(100, 116, 139);
+                    doc.text(`UNIDADE: ${currentUnit}`, 12, 50);
+
+                    // Badges de Notas e Transferência (Exatamente como no site)
+                    let bX = 12;
+                    doc.setFontSize(7);
+                    if (truck.transfer) {
+                        doc.setFillColor(227, 6, 19);
+                        const tw = doc.getTextWidth(truck.transfer) + 4;
+                        doc.roundedRect(bX, 54, tw, 5, 1, 1, 'F');
+                        doc.setTextColor(255, 255, 255);
+                        doc.text(truck.transfer.toUpperCase(), bX + 2, 57.5);
+                        bX += tw + 5;
+                    }
+                    if (truck.notes) {
+                        doc.setFillColor(15, 23, 42);
+                        const nw = doc.getTextWidth(truck.notes) + 4;
+                        doc.roundedRect(bX, 54, nw, 5, 1, 1, 'F');
+                        doc.setTextColor(255, 255, 255);
+                        doc.text(truck.notes.toUpperCase(), bX + 2, 57.5);
+                    }
+
+                    // Renderização dos Ciclos
+                    const startY = 65;
+                    const gap = 5;
+                    const colW = (pageWidth - 20 - (gap * 2)) / 3;
+
+                    for (let cIdx = 0; cIdx < 3; cIdx++) {
+                        const x = 10 + (cIdx * (colW + gap));
+                        const active = truck.active[cIdx];
+                        doc.setDrawColor(241, 245, 249);
+                        doc.setFillColor(active ? 255 : 250, active ? 255 : 251, active ? 255 : 252);
+                        doc.roundedRect(x, startY, colW, 132, 5, 5, 'FD');
+
+                        doc.setTextColor(active ? 227 : 200, active ? 6 : 200, active ? 13 : 200);
+                        doc.setFont("helvetica", "bold"); doc.setFontSize(9);
+                        doc.text(cycleInfo[cIdx].label, x + 5, startY + 8);
+
+                        if (active) {
+                            if(truck.months[cIdx]) {
+                                doc.setFillColor(15, 23, 42);
+                                doc.roundedRect(x + colW - 22, startY + 4, 18, 5, 1, 1, 'F');
+                                doc.setTextColor(255, 255, 255);
+                                doc.setFontSize(6);
+                                doc.text(truck.months[cIdx], x + colW - 13, startY + 7.5, { align: 'center' });
+                            }
+                            const imgW = (colW - 10 - 3) / 2;
+                            const imgH = 54;
+                            for (let sIdx = 0; sIdx < 4; sIdx++) {
+                                if (isPdfCancelled) break;
+                                const imgUrl = `${FOLDER_MAP.cycles[cIdx]}/${FOLDER_MAP.units[currentUnit]}/${truck.id}/slot${sIdx+1}.jpg`;
+                                const imgB64 = await getBase64FromUrl(imgUrl);
+                                if (imgB64) {
+                                    const imgX = x + 5 + (sIdx % 2 * (imgW + 3));
+                                    const imgY = startY + 18 + (Math.floor(sIdx / 2) * (imgH + 3));
+                                    try { doc.addImage(imgB64, 'JPEG', imgX, imgY, imgW, imgH, undefined, 'FAST'); } catch (e) {}
+                                }
+                            }
+                        } else {
+                            doc.setTextColor(220); doc.setFontSize(8);
+                            doc.text("CICLO PENDENTE", x + (colW/2), startY + 65, { align: 'center' });
+                        }
+                    }
+                    // Hack para background: setTimeout libera a thread principal entre páginas
+                    await new Promise(r => setTimeout(r, 10));
+                }
+            }
+
+            if (!isPdfCancelled) doc.save(`FROTA_CB_GERAL_2025.pdf`);
+            btn.disabled = false; progCont.style.display = 'none'; progBar.style.width = '0%'; isPdfCancelled = false;
         }
 
-        /* --- LÓGICA DE COMPARAÇÃO --- */
-        let isComparisonMode = false;
-
-        function toggleComparison() {
-            isComparisonMode = !isComparisonMode;
-            const btn = document.getElementById('btn-comparison');
-            if (isComparisonMode) {
-                document.body.classList.add('comparison-active');
-                btn.innerHTML = '<i data-lucide="x" class="w-3.5 h-3.5"></i> Sair da Comparação';
-            } else {
-                document.body.classList.remove('comparison-active');
-                btn.innerHTML = '<i data-lucide="layout-grid" class="w-3.5 h-3.5"></i> Comparar Ciclos';
-            }
-            lucide.createIcons();
-        }
-
-        document.addEventListener('fullscreenchange', () => {
-            const btn = document.getElementById('btn-comparison');
-            if (document.fullscreenElement) {
-                btn.classList.remove('hidden');
-            } else {
-                btn.classList.add('hidden');
-                if (isComparisonMode) toggleComparison(); 
-            }
-        });
-
-        /* --- LÓGICA DE RENDERIZAÇÃO --- */
         function render(isUnitJump = false) {
-            const list = fleetData[activeUnit]
-                .filter(t => t.id.includes(searchTerm))
-                .sort((a, b) => parseInt(a.id) - parseInt(b.id));
-            
+            const list = fleetData[activeUnit].filter(t => t.id.includes(searchTerm)).sort((a, b) => parseInt(a.id) - parseInt(b.id));
             const truck = list[currentIndex] || list[0] || { id: "---", months: [null, null, null], active: [false, false, false] };
-            
             const animatedContent = document.getElementById('animated-content');
             animatedContent.classList.remove('slide-up-active');
-            void animatedContent.offsetWidth; 
+            void animatedContent.offsetWidth;
             animatedContent.classList.add('slide-up-active');
-
             const display = document.getElementById('main-display');
-            if (isUnitJump) {
-                display.classList.add('unit-jump-glow');
-                setTimeout(() => display.classList.remove('unit-jump-glow'), 1500);
-            }
-
+            if (isUnitJump) { display.classList.add('unit-jump-glow'); setTimeout(() => display.classList.remove('unit-jump-glow'), 1500); }
             const unitSelector = document.getElementById('unit-selector');
-            unitSelector.innerHTML = Object.keys(fleetData).map(name => `
-                <button onclick="changeUnit('${name}')" class="px-3 py-1.5 rounded-md transition-all ${activeUnit === name ? 'bg-white text-[#E30613] shadow-md scale-105' : 'text-white/60 hover:text-white'}">
-                    ${name}
-                </button>
-            `).join('');
-
+            unitSelector.innerHTML = Object.keys(fleetData).map(name => `<button onclick="changeUnit('${name}')" class="px-3 py-1.5 rounded-md transition-all ${activeUnit === name ? 'bg-white text-[#E30613] shadow-md scale-105' : 'text-white/60 hover:text-white'}">${name}</button>`).join('');
             document.getElementById('total-counter').innerText = `${list.length} veículos`;
             const truckList = document.getElementById('truck-list');
-            truckList.innerHTML = list.map((t, i) => `
-                <button onclick="setStep(${i})" class="w-full group flex flex-col items-center p-2.5 rounded-xl transition-all duration-200 ${truck.id === t.id ? 'bg-[#E30613] text-white shadow-lg scale-105' : 'hover:bg-white text-slate-400'}">
-                    <span class="text-[11px] font-black">${t.id}</span>
-                </button>
-            `).join('');
-
+            truckList.innerHTML = list.map((t, i) => `<button onclick="setStep(${i})" class="w-full group flex flex-col items-center p-2.5 rounded-xl transition-all duration-200 ${truck.id === t.id ? 'bg-[#E30613] text-white shadow-lg scale-105' : 'hover:bg-white text-slate-400'}"><span class="text-[11px] font-black">${t.id}</span></button>`).join('');
             const activeTruckButton = truckList.querySelector('.bg-\\[\\#E30613\\]');
-            if (activeTruckButton) {
-                activeTruckButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-
+            if (activeTruckButton) activeTruckButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
             document.getElementById('current-id').innerText = truck.id;
             document.getElementById('current-unit-label').innerText = activeUnit;
             document.getElementById('page-indicator').innerText = `${list.length > 0 ? currentIndex + 1 : 0} de ${list.length}`;
-            
             const notesContainer = document.getElementById('notes-container');
             notesContainer.innerHTML = '';
-            if(truck.transfer) notesContainer.innerHTML += `<div class="bg-red-600 text-white px-4 py-0.5 rounded shadow-sm text-[10px] font-black uppercase flex items-center gap-1"><i data-lucide="arrow-right-left" class="w-2.5 h-2.5 text-white"></i> ${truck.transfer}</div>`;
-            if(truck.notes) notesContainer.innerHTML += `<div class="bg-slate-900 text-white px-4 py-0.5 rounded text-[10px] font-black uppercase flex items-center gap-1 shadow-sm"><i data-lucide="wrench" class="w-2.5 h-2.5 text-[#E30613]"></i> ${truck.notes}</div>`;
-
+            if (truck.transfer) notesContainer.innerHTML += `<div class="bg-red-600 text-white px-4 py-0.5 rounded shadow-sm text-[10px] font-black uppercase flex items-center gap-1"><i data-lucide="arrow-right-left" class="w-2.5 h-2.5 text-white"></i> ${truck.transfer}</div>`;
+            if (truck.notes) notesContainer.innerHTML += `<div class="bg-slate-900 text-white px-4 py-0.5 rounded text-[10px] font-black uppercase flex items-center gap-1 shadow-sm"><i data-lucide="wrench" class="w-2.5 h-2.5 text-[#E30613]"></i> ${truck.notes}</div>`;
             const grid = document.getElementById('cycles-grid');
             grid.innerHTML = [0, 1, 2].map(i => {
                 const isActive = truck.active[i];
                 const month = truck.months[i];
                 const cycleFolder = FOLDER_MAP.cycles[i];
                 const unitFolder = FOLDER_MAP.units[activeUnit];
-
                 return `
                     <div class="flex flex-col rounded-3xl border-2 transition-all duration-500 overflow-hidden ${isActive ? 'bg-white border-slate-100 shadow-xl' : 'bg-slate-50 border-dashed border-slate-200 opacity-20 grayscale'}">
                         <div class="px-4 py-2 border-b flex flex-col gap-0.5 shrink-0 ${isActive ? 'bg-[#E30613]/5 border-slate-100' : 'border-transparent'}">
@@ -635,90 +601,43 @@
                                 </div>
                                 ${isActive ? '<i data-lucide="check-circle-2" class="w-3 h-3 text-green-500"></i>' : ''}
                             </div>
-                            ${isActive && month ? `
-                                <div class="mt-0.5 bg-slate-900 text-white text-[8px] font-black py-0.5 px-2 rounded shadow flex items-center justify-center gap-1.5 uppercase tracking-widest leading-none">
-                                    <i data-lucide="calendar" class="w-2.5 h-2.5 text-[#E30613]"></i> ${month}
-                                </div>
-                            ` : (isActive ? '<div class="mt-0.5 bg-slate-100 text-slate-400 text-[7px] font-black py-0.5 px-2 rounded text-center italic tracking-widest leading-none">Aguardando Validação</div>' : '')}
+                            ${isActive && month ? `<div class="mt-0.5 bg-slate-900 text-white text-[8px] font-black py-0.5 px-2 rounded shadow flex items-center justify-center gap-1.5 uppercase tracking-widest leading-none"><i data-lucide="calendar" class="w-2.5 h-2.5 text-[#E30613]"></i> ${month}</div>` : (isActive ? '<div class="mt-0.5 bg-slate-100 text-slate-400 text-[7px] font-black py-0.5 px-2 rounded text-center italic tracking-widest leading-none">Aguardando Validação</div>' : '')}
                         </div>
-                        
                         <div class="flex-1 p-2 grid grid-cols-2 grid-rows-2 gap-2 bg-slate-50/20 overflow-hidden min-h-0">
                             ${[1, 2, 3, 4].map(s => {
                                 const path = `${cycleFolder}/${unitFolder}/${truck.id}/slot${s}.jpg`;
-                                return `
-                                    <div class="image-slot min-h-0 h-full w-full bg-slate-100/80 rounded-2xl border border-slate-100 relative group overflow-hidden cursor-pointer shadow-sm flex items-center justify-center">
-                                        <img src="${path}" 
-                                             onload="handleImgLoad(this)"
-                                             onerror="handleImgError(this)" 
-                                             onclick="openZoom('${path}')"
-                                             class="opacity-0 max-w-full max-h-full object-contain z-10 transition-all duration-500 group-hover:scale-105">
-                                        <i data-lucide="image" class="img-placeholder-icon absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-slate-200 z-0"></i>
-                                        <i data-lucide="maximize-2" class="absolute bottom-2 right-2 w-3 h-3 text-[#E30613] opacity-0 group-hover:opacity-100 transition-opacity z-20"></i>
-                                    </div>
-                                `;
-                            }).join('')}
+                                return `<div class="image-slot min-h-0 h-full w-full bg-slate-100/80 rounded-2xl border border-slate-100 relative group overflow-hidden cursor-pointer shadow-sm flex items-center justify-center">
+                                            <img src="${path}" onload="handleImgLoad(this)" onerror="handleImgError(this)" onclick="openZoom('${path}')" class="opacity-0 max-w-full max-h-full object-contain z-10 transition-all duration-500 group-hover:scale-105">
+                                            <i data-lucide="image" class="img-placeholder-icon absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-slate-200 z-0"></i>
+                                            <i data-lucide="maximize-2" class="absolute bottom-2 right-2 w-3 h-3 text-[#E30613] opacity-0 group-hover:opacity-100 transition-opacity z-20"></i>
+                                        </div>`; }).join('')}
                         </div>
-                    </div>
-                `;
-            }).join('');
-
+                    </div>`; }).join('');
             const dots = document.getElementById('pagination-dots');
             dots.innerHTML = list.map((_, i) => `<div class="h-1 rounded-full transition-all duration-300 ${currentIndex === i ? 'w-4 bg-[#E30613]' : 'w-1 bg-slate-200'}"></div>`).join('');
-
             lucide.createIcons();
         }
 
-        /* --- INTERAÇÕES --- */
         function changeUnit(unit) { activeUnit = unit; currentIndex = 0; render(); }
         function setStep(i) { currentIndex = i; render(); }
-        
-        document.getElementById('prev-btn').onclick = () => { if(currentIndex > 0) { currentIndex--; render(); } };
-        document.getElementById('next-btn').onclick = () => { 
-            const list = fleetData[activeUnit].filter(t => t.id.includes(searchTerm));
-            if(currentIndex < list.length - 1) { currentIndex++; render(); } 
-        };
-
+        document.getElementById('prev-btn').onclick = () => { if (currentIndex > 0) { currentIndex--; render(); } };
+        document.getElementById('next-btn').onclick = () => { const list = fleetData[activeUnit].filter(t => t.id.includes(searchTerm)); if (currentIndex < list.length - 1) { currentIndex++; render(); } };
         document.getElementById('search-input').oninput = (e) => {
-            const val = e.target.value.trim();
-            const currentSelectedId = document.getElementById('current-id').innerText;
-            searchTerm = val;
-            if (val.length >= 2) {
-                for (const unit in fleetData) {
-                    const foundIndex = fleetData[unit].findIndex(t => t.id === val);
-                    if (foundIndex !== -1) {
-                        activeUnit = unit;
-                        currentIndex = foundIndex;
-                        render();
-                        return;
-                    }
-                }
-            } 
-            const fullListSorted = fleetData[activeUnit]
-                .filter(t => t.id.includes(searchTerm))
-                .sort((a, b) => parseInt(a.id) - parseInt(b.id));
-            const newIndex = fullListSorted.findIndex(t => t.id === currentSelectedId);
-            currentIndex = newIndex !== -1 ? newIndex : 0;
+            const val = e.target.value.trim(); searchTerm = val;
+            if (val.length >= 2) { for (const unit in fleetData) { const idx = fleetData[unit].findIndex(t => t.id === val); if (idx !== -1) { activeUnit = unit; currentIndex = idx; render(); return; } } }
             render();
         };
 
         window.addEventListener('keydown', (e) => {
-            const searchInput = document.getElementById('search-input');
-            if (document.activeElement === searchInput) return;
+            if (document.activeElement === document.getElementById('search-input')) return;
             if (e.key === 'ArrowRight') document.getElementById('next-btn').click();
             else if (e.key === 'ArrowLeft') document.getElementById('prev-btn').click();
             else if (e.key === 'Escape') document.getElementById('lightbox-modal').style.display = 'none';
-            if ((e.key === 'c' || e.key === 'C') && document.fullscreenElement) toggleComparison();
         });
 
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen();
-            } else {
-                if (document.exitFullscreen) document.exitFullscreen();
-            }
-        }
-
+        function toggleFullscreen() { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
         window.onload = render;
     </script>
 </body>
+
 </html>
