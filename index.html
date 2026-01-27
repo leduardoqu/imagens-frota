@@ -577,7 +577,6 @@
         function selectAllTrucks(state) { document.querySelectorAll('.pdf-checkbox').forEach(cb => cb.checked = state); }
         function cancelPDFGeneration() { isPdfCancelled = true; }
 
-        // Otimizado: Baixa o blob e converte para DataURL sem processar Canvas (mais rápido)
         const getImageData = async (url) => {
             try {
                 const response = await fetch(url);
@@ -617,7 +616,6 @@
             progCont.style.display = 'flex';
             toggleMenu();
 
-            // Criamos o documento com compressão ativa
             const doc = new jsPDF({ orientation: 'l', unit: 'mm', format: 'a4', compress: true });
             const pageWidth = doc.internal.pageSize.getWidth();
             const pageHeight = doc.internal.pageSize.getHeight();
@@ -633,7 +631,6 @@
             for (const currentUnit of unitOrder) {
                 if (isPdfCancelled || !groupedTrucks[currentUnit]) continue;
 
-                // Capa da Unidade
                 if (totalProcessed > 0) doc.addPage();
                 doc.setFillColor(227, 6, 19);
                 doc.rect(0, 0, pageWidth, pageHeight, 'F');
@@ -648,7 +645,6 @@
                     const truck = fleetData[currentUnit].find(t => t.id === truckId);
                     doc.addPage();
 
-                    // Header da página do caminhão
                     doc.setFillColor(227, 6, 19);
                     doc.rect(0, 0, pageWidth, 12, 'F');
                     doc.setTextColor(255, 255, 255);
@@ -658,8 +654,6 @@
                     const startY = 20;
                     const colW = (pageWidth - 25) / 3;
 
-                    // --- MELHORIA DE VELOCIDADE: BUSCA PARALELA ---
-                    // Preparamos todas as promessas de imagens do caminhão atual
                     const imagePromises = [];
                     for (let cIdx = 0; cIdx < 3; cIdx++) {
                         if (truck.active[cIdx]) {
@@ -672,10 +666,9 @@
                         }
                     }
 
-                    // Aguarda todas as imagens do caminhão baixarem simultaneamente
+                    
                     const imagesResults = await Promise.all(imagePromises);
 
-                    // Desenha os quadros dos ciclos (mesmo sem imagem)
                     for (let cIdx = 0; cIdx < 3; cIdx++) {
                         const x = 10 + (cIdx * (colW + 2.5));
                         const active = truck.active[cIdx];
@@ -686,7 +679,6 @@
                         doc.setTextColor(active ? 227 : 200, active ? 6 : 200, active ? 13 : 200);
                         doc.text(cycleInfo[cIdx].label, x + 5, startY + 8);
 
-                        // Filtra as imagens pertencentes a este ciclo
                         const cycleImages = imagesResults.filter(img => img.cIdx === cIdx);
 
                         cycleImages.forEach(imgObj => {
@@ -708,7 +700,6 @@
                                 const offsetY = (slotH - drawH) / 2;
 
                                 try {
-                                    // 'FAST' e compressão JPEG para não travar o navegador
                                     doc.addImage(imgObj.res.data, 'JPEG', imgX + offsetX, imgY + offsetY, drawW, drawH, undefined, 'FAST');
                                 } catch (e) { console.error("Erro ao inserir imagem", e); }
                             }
